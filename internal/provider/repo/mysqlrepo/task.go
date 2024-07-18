@@ -79,7 +79,7 @@ func (m MySQLTaskRepo) ListTasks(
 func (m MySQLTaskRepo) CreateTask(
 	ctx context.Context,
 	params repo.CreateTaskParams,
-) (ID string, err error) {
+) error {
 	panic("not implemented") // TODO: Implement
 }
 

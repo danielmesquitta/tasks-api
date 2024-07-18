@@ -5,19 +5,19 @@ import (
 
 	"github.com/danielmesquitta/tasks-api/internal/domain/entity"
 	"github.com/danielmesquitta/tasks-api/internal/provider/repo"
-	"github.com/danielmesquitta/tasks-api/pkg/crypto"
+	"github.com/danielmesquitta/tasks-api/pkg/cryptoutil"
 	"github.com/danielmesquitta/tasks-api/pkg/validator"
 )
 
 type ListTasks struct {
 	validator *validator.Validator
-	crypto    *crypto.Crypto
+	crypto    *cryptoutil.AESCrypto
 	taskRepo  repo.TaskRepo
 }
 
 func NewListTasks(
 	validator *validator.Validator,
-	crypto *crypto.Crypto,
+	crypto *cryptoutil.AESCrypto,
 	taskRepo repo.TaskRepo,
 ) *ListTasks {
 	return &ListTasks{
@@ -34,19 +34,21 @@ type ListTasksParams struct {
 
 func (l *ListTasks) Execute(
 	params ListTasksParams,
-) (tasks []entity.Task, err error) {
+) ([]entity.Task, error) {
 	if err := l.validator.Validate(params); err != nil {
 		validationErr := entity.ErrValidation
 		validationErr.Message = err.Error()
 		return nil, validationErr
 	}
 
+	var results []entity.Task
+	var err error
 	switch params.UserRole {
 	case entity.RoleManager:
-		tasks, err = l.taskRepo.ListTasks(context.Background())
+		results, err = l.taskRepo.ListTasks(context.Background())
 
 	case entity.RoleTechnician:
-		tasks, err = l.taskRepo.ListTasks(
+		results, err = l.taskRepo.ListTasks(
 			context.Background(),
 			repo.WithAssignedToUserID(params.UserID),
 		)
@@ -58,6 +60,9 @@ func (l *ListTasks) Execute(
 	if err != nil {
 		return nil, entity.NewErr(err)
 	}
+
+	tasks := make([]entity.Task, len(results))
+	copy(tasks, results)
 
 	for i, task := range tasks {
 		decryptedSummary, err := l.crypto.Decrypt(task.Summary)

@@ -85,4 +85,12 @@ var (
 		"only users with the role technician can finish tasks",
 		ErrTypeForbidden,
 	)
+	ErrUserEmailOrPasswordIncorrect = newErr(
+		"email or password is incorrect",
+		ErrTypeUnauthorized,
+	)
+	ErrEmailAlreadyExists = newErr(
+		"email is already registered",
+		ErrTypeValidation,
+	)
 )

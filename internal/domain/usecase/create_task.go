@@ -6,21 +6,21 @@ import (
 
 	"github.com/danielmesquitta/tasks-api/internal/domain/entity"
 	"github.com/danielmesquitta/tasks-api/internal/provider/repo"
-	"github.com/danielmesquitta/tasks-api/pkg/crypto"
+	"github.com/danielmesquitta/tasks-api/pkg/cryptoutil"
 	"github.com/danielmesquitta/tasks-api/pkg/validator"
 	"github.com/jinzhu/copier"
 )
 
 type CreateTask struct {
 	validator *validator.Validator
-	crypto    *crypto.Crypto
+	crypto    *cryptoutil.AESCrypto
 	taskRepo  repo.TaskRepo
 	userRepo  repo.UserRepo
 }
 
 func NewCreateTask(
 	validator *validator.Validator,
-	crypto *crypto.Crypto,
+	crypto *cryptoutil.AESCrypto,
 	taskRepo repo.TaskRepo,
 	userRepo repo.UserRepo,
 ) *CreateTask {
@@ -39,31 +39,28 @@ type CreateTaskParams struct {
 	AssignedToUserID string      `json:"assigned_to_user_id,omitempty" validate:"uuid,omitempty"`
 }
 
-func (c *CreateTask) Execute(params CreateTaskParams) (ID string, err error) {
+func (c *CreateTask) Execute(params CreateTaskParams) error {
 	if params.UserRole != entity.RoleManager {
-		return "", entity.ErrUserNotAllowedToCreateTask
+		return entity.ErrUserNotAllowedToCreateTask
 	}
 
-	if err = c.validator.Validate(params); err != nil {
+	if err := c.validator.Validate(params); err != nil {
 		validationErr := entity.ErrValidation
 		validationErr.Message = err.Error()
-		return "", validationErr
+		return validationErr
 	}
 
 	wg := sync.WaitGroup{}
 	wg.Add(2)
 
 	var createdByUser, assignedToUser entity.User
-	var userRepoErr error
+	var err error
 	go func() {
 		defer wg.Done()
 		createdByUser, err = c.userRepo.GetUserByID(
 			context.Background(),
 			params.CreatedByUserID,
 		)
-		if err != nil {
-			userRepoErr = err
-		}
 	}()
 
 	go func() {
@@ -72,49 +69,45 @@ func (c *CreateTask) Execute(params CreateTaskParams) (ID string, err error) {
 			context.Background(),
 			params.AssignedToUserID,
 		)
-		if err != nil {
-			userRepoErr = err
-		}
 	}()
 
 	wg.Wait()
 
-	if userRepoErr != nil {
-		return "", entity.NewErr(err)
+	if err != nil {
+		return entity.NewErr(err)
 	}
 
 	if createdByUser.ID == "" {
-		return "", entity.ErrCreatedByUserNotFound
+		return entity.ErrCreatedByUserNotFound
 	}
 
 	if assignedToUser.ID == "" {
-		return "", entity.ErrAssignToUserNotFound
+		return entity.ErrAssignToUserNotFound
 	}
 
 	if createdByUser.Role != entity.RoleManager {
-		return "", entity.ErrUserNotAllowedToCreateTask
+		return entity.ErrUserNotAllowedToCreateTask
 	}
 
 	if assignedToUser.Role != entity.RoleTechnician {
-		return "", entity.ErrInvalidRoleForAssignedUser
+		return entity.ErrInvalidRoleForAssignedUser
 	}
 
 	encryptedSummary, err := c.crypto.Encrypt(params.Summary)
 	if err != nil {
-		return "", entity.NewErr(err)
+		return entity.NewErr(err)
 	}
 
 	params.Summary = encryptedSummary
 
 	repoParams := repo.CreateTaskParams{}
 	if err = copier.Copy(&repoParams, params); err != nil {
-		return "", entity.NewErr(err)
+		return entity.NewErr(err)
 	}
 
-	taskID, err := c.taskRepo.CreateTask(context.Background(), repoParams)
-	if err != nil {
-		return "", entity.NewErr(err)
+	if err := c.taskRepo.CreateTask(context.Background(), repoParams); err != nil {
+		return entity.NewErr(err)
 	}
 
-	return taskID, nil
+	return nil
 }

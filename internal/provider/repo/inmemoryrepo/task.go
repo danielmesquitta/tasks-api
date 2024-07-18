@@ -59,10 +59,10 @@ func (im *InMemoryTaskRepo) ListTasks(
 func (im *InMemoryTaskRepo) CreateTask(
 	ctx context.Context,
 	params repo.CreateTaskParams,
-) (string, error) {
+) error {
 	task := entity.Task{}
 	if err := copier.Copy(&task, params); err != nil {
-		return "", entity.NewErr(err)
+		return entity.NewErr(err)
 	}
 
 	task.ID = uuid.NewString()
@@ -71,7 +71,7 @@ func (im *InMemoryTaskRepo) CreateTask(
 
 	im.Tasks = append(im.Tasks, task)
 
-	return task.ID, nil
+	return nil
 }
 
 func (im *InMemoryTaskRepo) UpdateTask(

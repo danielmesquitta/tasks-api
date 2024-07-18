@@ -41,7 +41,7 @@ type TaskRepo interface {
 	CreateTask(
 		ctx context.Context,
 		params CreateTaskParams,
-	) (ID string, err error)
+	) error
 	UpdateTask(
 		ctx context.Context,
 		params UpdateTaskParams,

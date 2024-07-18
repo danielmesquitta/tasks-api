@@ -1,6 +1,8 @@
 package config
 
 import (
+	"os"
+
 	"github.com/danielmesquitta/tasks-api/pkg/validator"
 	"github.com/spf13/viper"
 )
@@ -21,6 +23,7 @@ type Env struct {
 	DBConnection         string      `mapstructure:"DB_CONNECTION"         validate:"required"`
 	CipherSecretKey      string      `mapstructure:"CIPHER_SECRET_KEY"     validate:"required,min=32,max=32"`
 	InitializationVector string      `mapstructure:"INITIALIZATION_VECTOR" validate:"required,min=16,max=16"`
+	JWTSecretKey         string      `mapstructure:"JWT_SECRET_KEY"        validate:"required"`
 }
 
 func (e *Env) validate() error {
@@ -42,7 +45,12 @@ func LoadEnv(validator *validator.Validator) *Env {
 		validator: validator,
 	}
 
-	viper.SetConfigFile(".env")
+	envFilepath := os.Getenv("ENV_FILEPATH")
+	if envFilepath == "" {
+		envFilepath = ".env"
+	}
+
+	viper.SetConfigFile(envFilepath)
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {

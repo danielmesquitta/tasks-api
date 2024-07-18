@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"go.uber.org/fx"
 
+	"github.com/danielmesquitta/tasks-api/internal/app/http/middleware"
 	"github.com/danielmesquitta/tasks-api/internal/app/http/router"
 	"github.com/danielmesquitta/tasks-api/internal/config"
 )
@@ -13,9 +14,14 @@ import (
 func NewApp(
 	lc fx.Lifecycle,
 	env *config.Env,
+	mid *middleware.Middleware,
 	router *router.Router,
 ) *echo.Echo {
 	app := echo.New()
+
+	defaultErrorHandler := app.HTTPErrorHandler
+	customErrorHandler := mid.ErrorHandler(defaultErrorHandler)
+	app.HTTPErrorHandler = customErrorHandler
 
 	router.Register(app)
 

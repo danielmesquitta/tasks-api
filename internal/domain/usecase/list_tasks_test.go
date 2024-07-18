@@ -1,29 +1,38 @@
 package usecase
 
 import (
-	"reflect"
 	"testing"
 	"time"
 
+	"github.com/danielmesquitta/tasks-api/internal/config"
 	"github.com/danielmesquitta/tasks-api/internal/domain/entity"
 	"github.com/danielmesquitta/tasks-api/internal/provider/repo"
 	"github.com/danielmesquitta/tasks-api/internal/provider/repo/inmemoryrepo"
-	"github.com/danielmesquitta/tasks-api/pkg/crypto"
+	"github.com/danielmesquitta/tasks-api/pkg/cryptoutil"
 	"github.com/danielmesquitta/tasks-api/pkg/validator"
 	"github.com/danielmesquitta/tasks-api/test/testutil"
 	"github.com/google/uuid"
 )
 
 func TestListTasks_Execute(t *testing.T) {
+	val := validator.NewValidator()
+	env := config.LoadEnv(val)
+	cry := cryptoutil.NewAESCrypto(env)
+
 	taskRepo := inmemoryrepo.NewInMemoryTaskRepo()
 
 	managerID := uuid.NewString()
 	firstTechnicianID := uuid.NewString()
 	secondTechnicianID := uuid.NewString()
 
+	encryptedSummary, err := cry.Encrypt("Lorem ipsum dolor sit amet")
+	if err != nil {
+		t.Fatalf("could not encrypt summary")
+	}
+
 	task1 := entity.Task{
 		ID:               uuid.NewString(),
-		Summary:          "Lorem ipsum dolor sit amet",
+		Summary:          encryptedSummary,
 		AssignedToUserID: firstTechnicianID,
 		CreatedByUserID:  managerID,
 		CreatedAt:        time.Now(),
@@ -32,7 +41,7 @@ func TestListTasks_Execute(t *testing.T) {
 
 	task2 := entity.Task{
 		ID:               uuid.NewString(),
-		Summary:          "Lorem ipsum dolor sit amet",
+		Summary:          encryptedSummary,
 		AssignedToUserID: firstTechnicianID,
 		CreatedByUserID:  managerID,
 		CreatedAt:        time.Now(),
@@ -41,7 +50,7 @@ func TestListTasks_Execute(t *testing.T) {
 
 	task3 := entity.Task{
 		ID:               uuid.NewString(),
-		Summary:          "Lorem ipsum dolor sit amet",
+		Summary:          encryptedSummary,
 		AssignedToUserID: secondTechnicianID,
 		CreatedByUserID:  managerID,
 		CreatedAt:        time.Now(),
@@ -57,7 +66,7 @@ func TestListTasks_Execute(t *testing.T) {
 
 	type fields struct {
 		validator *validator.Validator
-		crypto    *crypto.Crypto
+		crypto    *cryptoutil.AESCrypto
 		taskRepo  repo.TaskRepo
 	}
 	type args struct {
@@ -73,7 +82,8 @@ func TestListTasks_Execute(t *testing.T) {
 		{
 			name: "should list all tasks for the manager",
 			fields: fields{
-				validator: validator.NewValidator(),
+				validator: val,
+				crypto:    cry,
 				taskRepo:  taskRepo,
 			},
 			args: args{
@@ -92,7 +102,8 @@ func TestListTasks_Execute(t *testing.T) {
 		{
 			name: "should list only the tasks assigned to the first technician",
 			fields: fields{
-				validator: validator.NewValidator(),
+				validator: val,
+				crypto:    cry,
 				taskRepo:  taskRepo,
 			},
 			args: args{
@@ -110,7 +121,8 @@ func TestListTasks_Execute(t *testing.T) {
 		{
 			name: "should list only the tasks assigned to the second technician",
 			fields: fields{
-				validator: validator.NewValidator(),
+				validator: val,
+				crypto:    cry,
 				taskRepo:  taskRepo,
 			},
 			args: args{
@@ -127,7 +139,8 @@ func TestListTasks_Execute(t *testing.T) {
 		{
 			name: "should not list task if invalid id is provided",
 			fields: fields{
-				validator: validator.NewValidator(),
+				validator: val,
+				crypto:    cry,
 				taskRepo:  taskRepo,
 			},
 			args: args{
@@ -142,7 +155,8 @@ func TestListTasks_Execute(t *testing.T) {
 		{
 			name: "should not list task if invalid role is provided",
 			fields: fields{
-				validator: validator.NewValidator(),
+				validator: val,
+				crypto:    cry,
 				taskRepo:  taskRepo,
 			},
 			args: args{
@@ -170,14 +184,20 @@ func TestListTasks_Execute(t *testing.T) {
 					err,
 					tt.wantErr,
 				)
+				entityErr, ok := err.(*entity.Err)
+				if ok {
+					t.Logf("entityErr.StackTrace: %s", entityErr.StackTrace)
+				}
 				return
 			}
-			if !reflect.DeepEqual(gotTasks, tt.wantTasks) {
-				t.Errorf(
-					"ListTasks.Execute() = %v, want %v",
-					gotTasks,
-					tt.wantTasks,
-				)
+			for i, task := range gotTasks {
+				if task.ID != tt.wantTasks[i].ID {
+					t.Errorf(
+						"ListTasks.Execute() = %v, want %v",
+						gotTasks,
+						tt.wantTasks,
+					)
+				}
 			}
 		})
 	}

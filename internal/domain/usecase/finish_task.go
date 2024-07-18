@@ -72,7 +72,8 @@ func (f *FinishTask) Execute(params FinishTaskParams) error {
 		return entity.ErrTaskNotFound
 	}
 
-	task.FinishedAt = time.Now()
+	finishedAt := time.Now()
+	task.FinishedAt = &finishedAt
 
 	var repoParams repo.UpdateTaskParams
 	if err = copier.Copy(&repoParams, task); err != nil {

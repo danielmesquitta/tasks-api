@@ -10,7 +10,7 @@ import (
 	"database/sql"
 )
 
-const createTask = `-- name: CreateTask :execresult
+const createTask = `-- name: CreateTask :exec
 INSERT INTO tasks (summary, created_by_user_id, assigned_to_user_id)
 VALUES (?, ?, ?)
 `
@@ -21,8 +21,9 @@ type CreateTaskParams struct {
 	AssignedToUserID sql.NullString
 }
 
-func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, createTask, arg.Summary, arg.CreatedByUserID, arg.AssignedToUserID)
+func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) error {
+	_, err := q.db.ExecContext(ctx, createTask, arg.Summary, arg.CreatedByUserID, arg.AssignedToUserID)
+	return err
 }
 
 const deleteTask = `-- name: DeleteTask :exec

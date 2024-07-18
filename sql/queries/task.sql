@@ -10,7 +10,7 @@ FROM tasks;
 SELECT *
 FROM tasks
 WHERE assigned_to_user_id = ?;
--- name: CreateTask :execresult
+-- name: CreateTask :exec
 INSERT INTO tasks (summary, created_by_user_id, assigned_to_user_id)
 VALUES (?, ?, ?);
 -- name: UpdateTask :exec

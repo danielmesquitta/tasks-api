@@ -1,4 +1,4 @@
-package crypto
+package cryptoutil
 
 import (
 	"bytes"
@@ -8,42 +8,38 @@ import (
 	"fmt"
 
 	"github.com/danielmesquitta/tasks-api/internal/config"
+	"github.com/danielmesquitta/tasks-api/internal/domain/entity"
 )
 
-type Crypto struct {
+type AESCrypto struct {
 	env *config.Env
 }
 
-func NewCrypto(env *config.Env) *Crypto {
-	return &Crypto{
+func NewAESCrypto(env *config.Env) *AESCrypto {
+	return &AESCrypto{
 		env: env,
 	}
 }
 
 // Decrypt decrypts given text in AES 256 CBC
-func (c *Crypto) Decrypt(
+func (c *AESCrypto) Decrypt(
 	encrypted string,
 ) (plaintext string, err error) {
-	key := "my32digitkey12345678901234567890"
-	iv := "my16digitIvKey12"
-
 	ciphertext, err := base64.StdEncoding.DecodeString(encrypted)
-
 	if err != nil {
-		return "", err
+		return "", entity.NewErr(err)
 	}
 
-	block, err := aes.NewCipher([]byte(key))
-
+	block, err := aes.NewCipher([]byte(c.env.CipherSecretKey))
 	if err != nil {
-		return "", err
+		return "", entity.NewErr(err)
 	}
 
 	if len(ciphertext)%aes.BlockSize != 0 {
 		return "", fmt.Errorf("block size cant be zero")
 	}
 
-	mode := cipher.NewCBCDecrypter(block, []byte(iv))
+	mode := cipher.NewCBCDecrypter(block, []byte(c.env.InitializationVector))
 	mode.CryptBlocks(ciphertext, ciphertext)
 	ciphertext = pkcs5UnPadding(ciphertext)
 
@@ -51,12 +47,9 @@ func (c *Crypto) Decrypt(
 }
 
 // Encrypt encrypts given text in AES 256 CBC
-func (c *Crypto) Encrypt(
+func (c *AESCrypto) Encrypt(
 	plaintext string,
 ) (encrypted string, err error) {
-	key := "my32digitkey12345678901234567890"
-	iv := "my16digitIvKey12"
-
 	var plainTextBlock []byte
 	length := len(plaintext)
 
@@ -72,14 +65,13 @@ func (c *Crypto) Encrypt(
 	}
 
 	copy(plainTextBlock, plaintext)
-	block, err := aes.NewCipher([]byte(key))
-
+	block, err := aes.NewCipher([]byte(c.env.CipherSecretKey))
 	if err != nil {
-		return "", err
+		return "", entity.NewErr(err)
 	}
 
 	ciphertext := make([]byte, len(plainTextBlock))
-	mode := cipher.NewCBCEncrypter(block, []byte(iv))
+	mode := cipher.NewCBCEncrypter(block, []byte(c.env.InitializationVector))
 	mode.CryptBlocks(ciphertext, plainTextBlock)
 
 	str := base64.StdEncoding.EncodeToString(ciphertext)

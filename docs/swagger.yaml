@@ -1,4 +1,60 @@
 basePath: /api/v1
+definitions:
+  dto.AuthenticateRequestDTO:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  dto.AuthenticateResponseDTO:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  dto.CreateUserRequestDTO:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      role:
+        $ref: '#/definitions/entity.Role'
+    type: object
+  dto.ErrorResponseDTO:
+    properties:
+      message:
+        type: string
+    type: object
+  entity.Role:
+    enum:
+    - 1
+    - 2
+    type: integer
+    x-enum-varnames:
+    - RoleManager
+    - RoleTechnician
+  entity.Task:
+    properties:
+      assigned_to_user_id:
+        type: string
+      created_at:
+        type: string
+      created_by_user_id:
+        type: string
+      finished_at:
+        type: string
+      id:
+        type: string
+      summary:
+        type: string
+      updated_at:
+        type: string
+    type: object
 info:
   contact:
     email: danielmesquitta123@gmail.com
@@ -6,5 +62,97 @@ info:
   description: This is a CRUD API for tasks.
   title: Tasks API
   version: "1.0"
-paths: {}
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user
+      parameters:
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AuthenticateRequestDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AuthenticateResponseDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponseDTO'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponseDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponseDTO'
+      summary: Login
+      tags:
+      - Auth
+  /tasks:
+    get:
+      consumes:
+      - application/json
+      description: List tasks
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entity.Task'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponseDTO'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponseDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponseDTO'
+      summary: List tasks
+      tags:
+      - Tasks
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: Create new user account (for role manager use 1 and for technician
+        use 2)
+      parameters:
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateUserRequestDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponseDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponseDTO'
+      summary: Create user
+      tags:
+      - Users
 swagger: "2.0"

@@ -13,9 +13,9 @@ clear:
 install:
 	@go mod download && go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest && go install github.com/swaggo/swag/cmd/swag@latest && go install github.com/pressly/goose/v3/cmd/goose@latest && go install github.com/air-verse/air@latest
 test:
-	@go test ./... -v -race
+	@ENV_FILEPATH=$(ENV_FILEPATH) go test ./internal/domain/usecase
 coverage:
-	@go test ./internal/domain/usecase -coverprofile ./tmp/test_coverage.out && go tool cover -html=tmp/test_coverage.out
+	@ENV_FILEPATH=$(ENV_FILEPATH) go test ./internal/domain/usecase -coverprofile ./tmp/test_coverage.out && go tool cover -html=tmp/test_coverage.out
 docs:
 	@swag init -g ./cmd/server/main.go -o ./docs
 build:

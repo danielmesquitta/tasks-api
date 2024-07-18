@@ -5,3 +5,5 @@ tmp/*
 cover.out
 
 !.gitkeep
+
+docker-compose.yml
