@@ -6,9 +6,9 @@ import (
 )
 
 type Err struct {
-	Message    string
-	StackTrace string
-	Type       ErrType
+	Message    string  `json:"message,omitempty"`
+	StackTrace string  `json:"stack_trace,omitempty"`
+	Type       ErrType `json:"type,omitempty"`
 }
 
 type ErrType string

@@ -75,11 +75,11 @@ func (f *FinishTask) Execute(params FinishTaskParams) error {
 	task.FinishedAt = time.Now()
 
 	var repoParams repo.UpdateTaskParams
-	if err := copier.Copy(&repoParams, task); err != nil {
+	if err = copier.Copy(&repoParams, task); err != nil {
 		return entity.NewErr(err)
 	}
 
-	if err := f.taskRepo.UpdateTask(context.Background(), repoParams); err != nil {
+	if err = f.taskRepo.UpdateTask(context.Background(), repoParams); err != nil {
 		return entity.NewErr(err)
 	}
 

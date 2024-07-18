@@ -11,7 +11,7 @@ type Logger struct {
 
 func NewLogger(env *config.Env) *Logger {
 	var zapConfig zap.Config
-	if env.Environment == config.TaskionEnv {
+	if env.Environment == config.ProductionEnv {
 		zapConfig = zap.NewProductionConfig()
 	} else {
 		zapConfig = zap.NewDevelopmentConfig()

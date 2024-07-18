@@ -1,17 +1,22 @@
 package usecase
 
 import (
-	"errors"
 	"strings"
 	"testing"
 
+	"github.com/danielmesquitta/tasks-api/internal/config"
 	"github.com/danielmesquitta/tasks-api/internal/domain/entity"
 	"github.com/danielmesquitta/tasks-api/internal/provider/repo/inmemoryrepo"
+	"github.com/danielmesquitta/tasks-api/pkg/crypto"
 	"github.com/danielmesquitta/tasks-api/pkg/validator"
+	"github.com/danielmesquitta/tasks-api/test/testutil"
 	"github.com/google/uuid"
 )
 
 func TestCreateTask_Execute(t *testing.T) {
+	val := validator.NewValidator()
+	env := config.LoadEnv(val)
+
 	userRepo := inmemoryrepo.NewInMemoryUserRepo()
 
 	managerUser := entity.User{
@@ -32,6 +37,7 @@ func TestCreateTask_Execute(t *testing.T) {
 
 	type fields struct {
 		validator *validator.Validator
+		crypto    *crypto.Crypto
 		taskRepo  *inmemoryrepo.InMemoryTaskRepo
 		userRepo  *inmemoryrepo.InMemoryUserRepo
 	}
@@ -43,12 +49,13 @@ func TestCreateTask_Execute(t *testing.T) {
 		fields  fields
 		args    args
 		wantID  string
-		wantErr *entity.Err
+		wantErr error
 	}{
 		{
 			name: "should create a task",
 			fields: fields{
-				validator: validator.NewValidator(),
+				validator: val,
+				crypto:    crypto.NewCrypto(env),
 				taskRepo:  inmemoryrepo.NewInMemoryTaskRepo(),
 				userRepo:  userRepo,
 			},
@@ -65,7 +72,8 @@ func TestCreateTask_Execute(t *testing.T) {
 		{
 			name: "should not create a task if user role is not manager",
 			fields: fields{
-				validator: validator.NewValidator(),
+				validator: val,
+				crypto:    crypto.NewCrypto(env),
 				taskRepo:  inmemoryrepo.NewInMemoryTaskRepo(),
 				userRepo:  userRepo,
 			},
@@ -82,7 +90,8 @@ func TestCreateTask_Execute(t *testing.T) {
 		{
 			name: "should not create a task if user is trying to pass as a manager",
 			fields: fields{
-				validator: validator.NewValidator(),
+				validator: val,
+				crypto:    crypto.NewCrypto(env),
 				taskRepo:  inmemoryrepo.NewInMemoryTaskRepo(),
 				userRepo:  userRepo,
 			},
@@ -99,15 +108,16 @@ func TestCreateTask_Execute(t *testing.T) {
 		{
 			name: "should not create a task if created by user is not found",
 			fields: fields{
-				validator: validator.NewValidator(),
+				validator: val,
+				crypto:    crypto.NewCrypto(env),
 				taskRepo:  inmemoryrepo.NewInMemoryTaskRepo(),
 				userRepo: func() *inmemoryrepo.InMemoryUserRepo {
-					userRepo := inmemoryrepo.NewInMemoryUserRepo()
-					userRepo.Users = append(
-						userRepo.Users,
+					customUserRepo := inmemoryrepo.NewInMemoryUserRepo()
+					customUserRepo.Users = append(
+						customUserRepo.Users,
 						technicianUser,
 					)
-					return userRepo
+					return customUserRepo
 				}(),
 			},
 			args: args{
@@ -123,15 +133,16 @@ func TestCreateTask_Execute(t *testing.T) {
 		{
 			name: "should not create a task if assigned to user is not found",
 			fields: fields{
-				validator: validator.NewValidator(),
+				validator: val,
+				crypto:    crypto.NewCrypto(env),
 				taskRepo:  inmemoryrepo.NewInMemoryTaskRepo(),
 				userRepo: func() *inmemoryrepo.InMemoryUserRepo {
-					userRepo := inmemoryrepo.NewInMemoryUserRepo()
-					userRepo.Users = append(
-						userRepo.Users,
+					customUserRepo := inmemoryrepo.NewInMemoryUserRepo()
+					customUserRepo.Users = append(
+						customUserRepo.Users,
 						managerUser,
 					)
-					return userRepo
+					return customUserRepo
 				}(),
 			},
 			args: args{
@@ -147,7 +158,8 @@ func TestCreateTask_Execute(t *testing.T) {
 		{
 			name: "should not create a task if assigned to user is not a technician",
 			fields: fields{
-				validator: validator.NewValidator(),
+				validator: val,
+				crypto:    crypto.NewCrypto(env),
 				taskRepo:  inmemoryrepo.NewInMemoryTaskRepo(),
 				userRepo:  userRepo,
 			},
@@ -164,7 +176,8 @@ func TestCreateTask_Execute(t *testing.T) {
 		{
 			name: "should not create a task if summary is greater than 2500 characters",
 			fields: fields{
-				validator: validator.NewValidator(),
+				validator: val,
+				crypto:    crypto.NewCrypto(env),
 				taskRepo:  inmemoryrepo.NewInMemoryTaskRepo(),
 				userRepo:  userRepo,
 			},
@@ -181,7 +194,8 @@ func TestCreateTask_Execute(t *testing.T) {
 		{
 			name: "should not create a task if created by user id is invalid",
 			fields: fields{
-				validator: validator.NewValidator(),
+				validator: val,
+				crypto:    crypto.NewCrypto(env),
 				taskRepo:  inmemoryrepo.NewInMemoryTaskRepo(),
 				userRepo:  userRepo,
 			},
@@ -198,7 +212,8 @@ func TestCreateTask_Execute(t *testing.T) {
 		{
 			name: "should not create a task if assigned to user id is invalid",
 			fields: fields{
-				validator: validator.NewValidator(),
+				validator: val,
+				crypto:    crypto.NewCrypto(env),
 				taskRepo:  inmemoryrepo.NewInMemoryTaskRepo(),
 				userRepo:  userRepo,
 			},
@@ -217,11 +232,12 @@ func TestCreateTask_Execute(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			c := NewCreateTask(
 				tt.fields.validator,
+				tt.fields.crypto,
 				tt.fields.taskRepo,
 				tt.fields.userRepo,
 			)
 			gotID, err := c.Execute(tt.args.params)
-			if (err != nil) && !errors.Is(err, tt.wantErr) {
+			if !testutil.IsSameErr(err, tt.wantErr) {
 				t.Errorf(
 					"CreateTask.Execute() error = %v, wantErr %v",
 					err,

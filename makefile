@@ -13,7 +13,7 @@ clear:
 install:
 	@go mod download && go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest && go install github.com/swaggo/swag/cmd/swag@latest && go install github.com/pressly/goose/v3/cmd/goose@latest && go install github.com/air-verse/air@latest
 test:
-	@go test ./internal/domain/usecase
+	@go test ./... -v -race
 coverage:
 	@go test ./internal/domain/usecase -coverprofile ./tmp/test_coverage.out && go tool cover -html=tmp/test_coverage.out
 docs:

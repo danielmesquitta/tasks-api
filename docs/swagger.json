@@ -1,0 +1,14 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a CRUD API for tasks.",
+        "title": "Tasks API",
+        "contact": {
+            "name": "Daniel Mesquita",
+            "email": "danielmesquitta123@gmail.com"
+        },
+        "version": "1.0"
+    },
+    "basePath": "/api/v1",
+    "paths": {}
+}

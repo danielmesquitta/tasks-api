@@ -6,23 +6,27 @@ import (
 
 	"github.com/danielmesquitta/tasks-api/internal/domain/entity"
 	"github.com/danielmesquitta/tasks-api/internal/provider/repo"
+	"github.com/danielmesquitta/tasks-api/pkg/crypto"
 	"github.com/danielmesquitta/tasks-api/pkg/validator"
 	"github.com/jinzhu/copier"
 )
 
 type CreateTask struct {
 	validator *validator.Validator
+	crypto    *crypto.Crypto
 	taskRepo  repo.TaskRepo
 	userRepo  repo.UserRepo
 }
 
 func NewCreateTask(
 	validator *validator.Validator,
+	crypto *crypto.Crypto,
 	taskRepo repo.TaskRepo,
 	userRepo repo.UserRepo,
 ) *CreateTask {
 	return &CreateTask{
 		validator: validator,
+		crypto:    crypto,
 		taskRepo:  taskRepo,
 		userRepo:  userRepo,
 	}
@@ -40,7 +44,7 @@ func (c *CreateTask) Execute(params CreateTaskParams) (ID string, err error) {
 		return "", entity.ErrUserNotAllowedToCreateTask
 	}
 
-	if err := c.validator.Validate(params); err != nil {
+	if err = c.validator.Validate(params); err != nil {
 		validationErr := entity.ErrValidation
 		validationErr.Message = err.Error()
 		return "", validationErr
@@ -95,8 +99,15 @@ func (c *CreateTask) Execute(params CreateTaskParams) (ID string, err error) {
 		return "", entity.ErrInvalidRoleForAssignedUser
 	}
 
+	encryptedSummary, err := c.crypto.Encrypt(params.Summary)
+	if err != nil {
+		return "", entity.NewErr(err)
+	}
+
+	params.Summary = encryptedSummary
+
 	repoParams := repo.CreateTaskParams{}
-	if err := copier.Copy(&repoParams, params); err != nil {
+	if err = copier.Copy(&repoParams, params); err != nil {
 		return "", entity.NewErr(err)
 	}
 

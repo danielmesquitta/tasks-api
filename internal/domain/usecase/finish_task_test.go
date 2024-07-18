@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"errors"
+	"sync"
 	"testing"
 	"time"
 
@@ -10,6 +10,7 @@ import (
 	"github.com/danielmesquitta/tasks-api/internal/provider/msgbroker/climsgbroker"
 	"github.com/danielmesquitta/tasks-api/internal/provider/repo/inmemoryrepo"
 	"github.com/danielmesquitta/tasks-api/pkg/validator"
+	"github.com/danielmesquitta/tasks-api/test/testutil"
 	"github.com/google/uuid"
 )
 
@@ -193,18 +194,20 @@ func TestFinishTask_Execute(t *testing.T) {
 			)
 
 			sentMessages := 0
+			wg := sync.WaitGroup{}
+			wg.Add(1)
 			if tt.wantErr == nil {
 				_ = tt.fields.msgBroker.Subscribe(
 					msgbroker.TopicTaskFinished,
 					func(message []byte) {
+						defer wg.Done()
 						sentMessages++
 					},
 				)
 			}
 
 			err := f.Execute(tt.args.params)
-			if (err != nil) &&
-				!errors.Is(err, tt.wantErr) {
+			if !testutil.IsSameErr(err, tt.wantErr) {
 				t.Errorf(
 					"FinishTask.Execute() error = %v, wantErr %v",
 					err,
@@ -220,7 +223,7 @@ func TestFinishTask_Execute(t *testing.T) {
 					)
 				}
 
-				time.Sleep(5 * time.Millisecond)
+				wg.Wait()
 				if sentMessages != 1 {
 					t.Errorf(
 						"FinishTask.Execute() sentMessages = %v, want 1",

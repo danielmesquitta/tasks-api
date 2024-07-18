@@ -10,15 +10,17 @@ type Environment string
 const (
 	DevelopmentEnv Environment = "development"
 	TestEnv        Environment = "test"
-	TaskionEnv     Environment = "taskion"
+	ProductionEnv  Environment = "production"
 )
 
 type Env struct {
 	validator *validator.Validator
 
-	Environment  Environment `mapstructure:"ENVIRONMENT"`
-	Port         string      `mapstructure:"PORT"`
-	DBConnection string      `mapstructure:"DB_CONNECTION" validate:"required"`
+	Environment          Environment `mapstructure:"ENVIRONMENT"`
+	Port                 string      `mapstructure:"PORT"`
+	DBConnection         string      `mapstructure:"DB_CONNECTION"         validate:"required"`
+	CipherSecretKey      string      `mapstructure:"CIPHER_SECRET_KEY"     validate:"required,min=32,max=32"`
+	InitializationVector string      `mapstructure:"INITIALIZATION_VECTOR" validate:"required,min=16,max=16"`
 }
 
 func (e *Env) validate() error {
