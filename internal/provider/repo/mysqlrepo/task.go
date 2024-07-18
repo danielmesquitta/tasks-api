@@ -80,14 +80,32 @@ func (m MySQLTaskRepo) CreateTask(
 	ctx context.Context,
 	params repo.CreateTaskParams,
 ) error {
-	panic("not implemented") // TODO: Implement
+	args := mysqldb.CreateTaskParams{}
+	if err := copier.Copy(&args, params); err != nil {
+		return entity.NewErr(err)
+	}
+
+	if err := m.db.CreateTask(ctx, args); err != nil {
+		return entity.NewErr(err)
+	}
+
+	return nil
 }
 
 func (m MySQLTaskRepo) UpdateTask(
 	ctx context.Context,
 	params repo.UpdateTaskParams,
 ) error {
-	panic("not implemented") // TODO: Implement
+	args := mysqldb.UpdateTaskParams{}
+	if err := copier.Copy(&args, params); err != nil {
+		return entity.NewErr(err)
+	}
+
+	if err := m.db.UpdateTask(ctx, args); err != nil {
+		return entity.NewErr(err)
+	}
+
+	return nil
 }
 
 func (m MySQLTaskRepo) DeleteTask(ctx context.Context, id string) error {

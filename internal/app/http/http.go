@@ -6,6 +6,8 @@ import (
 	"github.com/danielmesquitta/tasks-api/internal/app/http/router"
 	"github.com/danielmesquitta/tasks-api/internal/config"
 	"github.com/danielmesquitta/tasks-api/internal/domain/usecase"
+	"github.com/danielmesquitta/tasks-api/internal/provider/msgbroker"
+	"github.com/danielmesquitta/tasks-api/internal/provider/msgbroker/climsgbroker"
 	"github.com/danielmesquitta/tasks-api/internal/provider/repo"
 	"github.com/danielmesquitta/tasks-api/internal/provider/repo/mysqlrepo"
 	"github.com/danielmesquitta/tasks-api/pkg/cryptoutil"
@@ -39,10 +41,17 @@ func Start() {
 			fx.As(new(repo.UserRepo)),
 		),
 
+		fx.Annotate(
+			climsgbroker.NewCLIMessageBroker,
+			fx.As(new(msgbroker.MessageBroker)),
+		),
+
 		// Use cases
 		usecase.NewListTasks,
 		usecase.NewAuthenticate,
 		usecase.NewCreateUser,
+		usecase.NewCreateTask,
+		usecase.NewFinishTask,
 
 		// Handlers
 		handler.NewAuthHandler,

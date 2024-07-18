@@ -46,5 +46,11 @@ func (r *Router) Register(
 
 	apiV1.POST("/auth/login", r.authHandler.Login)
 
-	apiV1.GET("/tasks", r.taskHandler.ListTasks, r.mid.EnsureAuthenticated)
+	apiV1.POST("/tasks", r.taskHandler.Create, r.mid.EnsureAuthenticated)
+	apiV1.PATCH(
+		"/tasks/:id/finished",
+		r.taskHandler.Finish,
+		r.mid.EnsureAuthenticated,
+	)
+	apiV1.GET("/tasks", r.taskHandler.List, r.mid.EnsureAuthenticated)
 }
