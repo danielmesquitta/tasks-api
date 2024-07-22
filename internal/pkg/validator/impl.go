@@ -2,7 +2,6 @@ package validator
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 
 	"github.com/go-playground/locales/en"
@@ -36,36 +35,24 @@ func NewValidate() *Validate {
 	}
 }
 
-// Validate validates the data (struct or slice of struct)
-// using the validator and returns an error if the data is invalid.
+// Validate validates the data (struct)
+// returning an error if the data is invalid.
 func (v *Validate) Validate(
 	data any,
 ) error {
-	strErrs := []string{}
-
-	dataAsSlice, ok := data.([]any)
-	if !ok {
-		dataAsSlice = []any{data}
+	err := v.validate.Struct(data)
+	if err == nil {
+		return nil
 	}
 
-	for _, item := range dataAsSlice {
-		err := v.validate.Struct(item)
+	validationErrs, ok := err.(validator.ValidationErrors)
+	if !ok {
+		return err
+	}
 
-		if err == nil {
-			continue
-		}
-
-		validatorErrs := err.(validator.ValidationErrors)
-
-		for _, e := range validatorErrs {
-			translatedErr := fmt.Errorf(
-				e.Translate(v.trans),
-			)
-			strErrs = append(
-				strErrs,
-				translatedErr.Error(),
-			)
-		}
+	strErrs := make([]string, len(validationErrs))
+	for i, validationErr := range validationErrs {
+		strErrs[i] = validationErr.Translate(v.trans)
 	}
 
 	errMsg := strings.Join(

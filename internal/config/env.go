@@ -16,7 +16,7 @@ const (
 )
 
 type Env struct {
-	validator validator.Validator
+	val validator.Validator
 
 	Environment          Environment `mapstructure:"ENVIRONMENT"`
 	Port                 string      `mapstructure:"PORT"`
@@ -27,7 +27,7 @@ type Env struct {
 }
 
 func (e *Env) validate() error {
-	if err := e.validator.Validate(e); err != nil {
+	if err := e.val.Validate(e); err != nil {
 		return err
 	}
 
@@ -40,9 +40,9 @@ func (e *Env) validate() error {
 	return nil
 }
 
-func LoadEnv(validator validator.Validator) *Env {
+func LoadEnv(val validator.Validator) *Env {
 	env := &Env{
-		validator: validator,
+		val: val,
 	}
 
 	envFilepath := os.Getenv("ENV_FILEPATH")
