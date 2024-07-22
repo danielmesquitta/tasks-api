@@ -5,28 +5,28 @@ import (
 	"sync"
 
 	"github.com/danielmesquitta/tasks-api/internal/domain/entity"
+	"github.com/danielmesquitta/tasks-api/internal/pkg/symcrypt"
+	"github.com/danielmesquitta/tasks-api/internal/pkg/validator"
 	"github.com/danielmesquitta/tasks-api/internal/provider/repo"
-	"github.com/danielmesquitta/tasks-api/pkg/cryptoutil"
-	"github.com/danielmesquitta/tasks-api/pkg/validator"
 	"github.com/jinzhu/copier"
 )
 
 type CreateTask struct {
-	validator *validator.Validator
-	crypto    *cryptoutil.AESCrypto
+	validator validator.Validator
+	symCrypto symcrypt.SymmetricalEncrypter
 	taskRepo  repo.TaskRepo
 	userRepo  repo.UserRepo
 }
 
 func NewCreateTask(
-	validator *validator.Validator,
-	crypto *cryptoutil.AESCrypto,
+	validator validator.Validator,
+	symCrypto symcrypt.SymmetricalEncrypter,
 	taskRepo repo.TaskRepo,
 	userRepo repo.UserRepo,
 ) *CreateTask {
 	return &CreateTask{
 		validator: validator,
-		crypto:    crypto,
+		symCrypto: symCrypto,
 		taskRepo:  taskRepo,
 		userRepo:  userRepo,
 	}
@@ -93,7 +93,7 @@ func (c *CreateTask) Execute(params CreateTaskParams) error {
 		return entity.ErrInvalidRoleForAssignedUser
 	}
 
-	encryptedSummary, err := c.crypto.Encrypt(params.Summary)
+	encryptedSummary, err := c.symCrypto.Encrypt(params.Summary)
 	if err != nil {
 		return entity.NewErr(err)
 	}

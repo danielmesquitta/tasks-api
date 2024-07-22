@@ -11,12 +11,12 @@ import (
 	enTranslations "github.com/go-playground/validator/v10/translations/en"
 )
 
-type Validator struct {
+type Validate struct {
 	validate *validator.Validate
 	trans    ut.Translator
 }
 
-func NewValidator() *Validator {
+func NewValidate() *Validate {
 	validate := validator.New()
 	english := en.New()
 	uni := ut.New(english, english)
@@ -30,13 +30,13 @@ func NewValidator() *Validator {
 		panic(err)
 	}
 
-	return &Validator{
+	return &Validate{
 		validate,
 		trans,
 	}
 }
 
-func (v *Validator) Validate(
+func (v *Validate) Validate(
 	data any,
 ) error {
 	var strErrs []string

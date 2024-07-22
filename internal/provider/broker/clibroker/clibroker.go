@@ -1,25 +1,25 @@
-package climsgbroker
+package clibroker
 
 import (
 	"fmt"
 	"sync"
 
-	"github.com/danielmesquitta/tasks-api/internal/provider/msgbroker"
+	"github.com/danielmesquitta/tasks-api/internal/provider/broker"
 )
 
 type CLIMessageBroker struct {
-	subscribers map[msgbroker.Topic][]msgbroker.Handler
+	subscribers map[broker.Topic][]broker.Handler
 	mutex       sync.Mutex
 }
 
 func NewCLIMessageBroker() *CLIMessageBroker {
 	return &CLIMessageBroker{
-		subscribers: make(map[msgbroker.Topic][]msgbroker.Handler),
+		subscribers: make(map[broker.Topic][]broker.Handler),
 	}
 }
 
 func (cmb *CLIMessageBroker) Publish(
-	topic msgbroker.Topic,
+	topic broker.Topic,
 	message []byte,
 ) error {
 	cmb.mutex.Lock()
@@ -35,8 +35,8 @@ func (cmb *CLIMessageBroker) Publish(
 }
 
 func (cmb *CLIMessageBroker) Subscribe(
-	topic msgbroker.Topic,
-	handler msgbroker.Handler,
+	topic broker.Topic,
+	handler broker.Handler,
 ) error {
 	cmb.mutex.Lock()
 	defer cmb.mutex.Unlock()

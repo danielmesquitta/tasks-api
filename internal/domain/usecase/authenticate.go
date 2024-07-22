@@ -5,30 +5,30 @@ import (
 	"time"
 
 	"github.com/danielmesquitta/tasks-api/internal/domain/entity"
+	"github.com/danielmesquitta/tasks-api/internal/pkg/hasher"
+	"github.com/danielmesquitta/tasks-api/internal/pkg/jwtutil"
+	"github.com/danielmesquitta/tasks-api/internal/pkg/validator"
 	"github.com/danielmesquitta/tasks-api/internal/provider/repo"
-	"github.com/danielmesquitta/tasks-api/pkg/cryptoutil"
-	"github.com/danielmesquitta/tasks-api/pkg/jwtutil"
-	"github.com/danielmesquitta/tasks-api/pkg/validator"
 	"github.com/golang-jwt/jwt/v5"
 )
 
 type Authenticate struct {
-	val      *validator.Validator
-	jwt      *jwtutil.JWT
-	bcrypt   *cryptoutil.Bcrypt
+	val      validator.Validator
+	jwt      jwtutil.JWTManager
+	hasher   hasher.Hasher
 	userRepo repo.UserRepo
 }
 
 func NewAuthenticate(
-	val *validator.Validator,
-	jwt *jwtutil.JWT,
-	bcrypt *cryptoutil.Bcrypt,
+	val validator.Validator,
+	jwt jwtutil.JWTManager,
+	hasher hasher.Hasher,
 	userRepo repo.UserRepo,
 ) *Authenticate {
 	return &Authenticate{
 		val:      val,
 		jwt:      jwt,
-		bcrypt:   bcrypt,
+		hasher:   hasher,
 		userRepo: userRepo,
 	}
 }
@@ -56,7 +56,7 @@ func (a *Authenticate) Execute(
 		return "", "", entity.ErrUserEmailOrPasswordIncorrect
 	}
 
-	if !a.bcrypt.Match(params.Password, user.Password) {
+	if !a.hasher.Match(params.Password, user.Password) {
 		return "", "", entity.ErrUserEmailOrPasswordIncorrect
 	}
 

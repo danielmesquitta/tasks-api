@@ -6,18 +6,18 @@ import (
 
 	"github.com/danielmesquitta/tasks-api/internal/config"
 	"github.com/danielmesquitta/tasks-api/internal/domain/entity"
+	"github.com/danielmesquitta/tasks-api/internal/pkg/symcrypt"
+	"github.com/danielmesquitta/tasks-api/internal/pkg/validator"
 	"github.com/danielmesquitta/tasks-api/internal/provider/repo"
 	"github.com/danielmesquitta/tasks-api/internal/provider/repo/inmemoryrepo"
-	"github.com/danielmesquitta/tasks-api/pkg/cryptoutil"
-	"github.com/danielmesquitta/tasks-api/pkg/validator"
 	"github.com/danielmesquitta/tasks-api/test/testutil"
 	"github.com/google/uuid"
 )
 
 func TestListTasks_Execute(t *testing.T) {
-	val := validator.NewValidator()
+	val := validator.NewValidate()
 	env := config.LoadEnv(val)
-	cry := cryptoutil.NewAESCrypto(env)
+	cry := symcrypt.NewAESCrypto(env)
 
 	taskRepo := inmemoryrepo.NewInMemoryTaskRepo()
 
@@ -65,8 +65,8 @@ func TestListTasks_Execute(t *testing.T) {
 	)
 
 	type fields struct {
-		validator *validator.Validator
-		crypto    *cryptoutil.AESCrypto
+		validator validator.Validator
+		crypto    symcrypt.SymmetricalEncrypter
 		taskRepo  repo.TaskRepo
 	}
 	type args struct {

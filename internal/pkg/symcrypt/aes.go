@@ -1,4 +1,4 @@
-package cryptoutil
+package symcrypt
 
 import (
 	"bytes"

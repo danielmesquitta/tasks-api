@@ -1,6 +1,8 @@
 package middleware
 
 import (
+	"log"
+	"log/slog"
 	"net/http"
 
 	"github.com/danielmesquitta/tasks-api/internal/app/http/dto"
@@ -32,7 +34,7 @@ func (m *Middleware) ErrorHandler(
 				requestData := map[string]any{}
 				_ = c.Bind(&requestData)
 
-				m.log.Errorln(
+				slog.Error(
 					appErr.Error(),
 					"url",
 					req.URL.Path,
@@ -42,6 +44,7 @@ func (m *Middleware) ErrorHandler(
 					c.QueryParams(),
 					"params",
 					c.ParamValues(),
+					"stacktrace",
 					appErr.StackTrace,
 				)
 
@@ -50,7 +53,7 @@ func (m *Middleware) ErrorHandler(
 					dto.ErrorResponseDTO{Message: "internal server error"},
 				)
 				if err != nil {
-					m.log.Errorln(err)
+					log.Println(err)
 				}
 				return
 			}
@@ -60,7 +63,7 @@ func (m *Middleware) ErrorHandler(
 				dto.ErrorResponseDTO{Message: appErr.Error()},
 			)
 			if err != nil {
-				m.log.Errorln(err)
+				log.Println(err)
 			}
 			return
 		}

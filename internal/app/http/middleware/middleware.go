@@ -1,21 +1,17 @@
 package middleware
 
 import (
-	"github.com/danielmesquitta/tasks-api/pkg/jwtutil"
-	"github.com/danielmesquitta/tasks-api/pkg/logger"
+	"github.com/danielmesquitta/tasks-api/internal/pkg/jwtutil"
 )
 
 type Middleware struct {
-	log *logger.Logger
-	jwt *jwtutil.JWT
+	jwt jwtutil.JWTManager
 }
 
 func NewMiddleware(
-	log *logger.Logger,
-	jwt *jwtutil.JWT,
+	jwt jwtutil.JWTManager,
 ) *Middleware {
 	return &Middleware{
-		log: log,
 		jwt: jwt,
 	}
 }

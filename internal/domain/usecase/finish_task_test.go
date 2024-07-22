@@ -6,10 +6,10 @@ import (
 	"time"
 
 	"github.com/danielmesquitta/tasks-api/internal/domain/entity"
-	"github.com/danielmesquitta/tasks-api/internal/provider/msgbroker"
-	"github.com/danielmesquitta/tasks-api/internal/provider/msgbroker/climsgbroker"
+	"github.com/danielmesquitta/tasks-api/internal/pkg/validator"
+	"github.com/danielmesquitta/tasks-api/internal/provider/broker"
+	"github.com/danielmesquitta/tasks-api/internal/provider/broker/clibroker"
 	"github.com/danielmesquitta/tasks-api/internal/provider/repo/inmemoryrepo"
-	"github.com/danielmesquitta/tasks-api/pkg/validator"
 	"github.com/danielmesquitta/tasks-api/test/testutil"
 	"github.com/google/uuid"
 )
@@ -50,8 +50,8 @@ func TestFinishTask_Execute(t *testing.T) {
 	)
 
 	type fields struct {
-		validator *validator.Validator
-		msgBroker *climsgbroker.CLIMessageBroker
+		validator validator.Validator
+		msgBroker *clibroker.CLIMessageBroker
 		taskRepo  *inmemoryrepo.InMemoryTaskRepo
 		userRepo  *inmemoryrepo.InMemoryUserRepo
 	}
@@ -67,8 +67,8 @@ func TestFinishTask_Execute(t *testing.T) {
 		{
 			name: "should update task finished at",
 			fields: fields{
-				validator: validator.NewValidator(),
-				msgBroker: climsgbroker.NewCLIMessageBroker(),
+				validator: validator.NewValidate(),
+				msgBroker: clibroker.NewCLIMessageBroker(),
 				taskRepo:  taskRepo,
 				userRepo:  userRepo,
 			},
@@ -84,8 +84,8 @@ func TestFinishTask_Execute(t *testing.T) {
 		{
 			name: "should not update task finished at if user role is not technician",
 			fields: fields{
-				validator: validator.NewValidator(),
-				msgBroker: climsgbroker.NewCLIMessageBroker(),
+				validator: validator.NewValidate(),
+				msgBroker: clibroker.NewCLIMessageBroker(),
 				taskRepo:  taskRepo,
 				userRepo:  userRepo,
 			},
@@ -101,8 +101,8 @@ func TestFinishTask_Execute(t *testing.T) {
 		{
 			name: "should not update task finished at if user is trying to pass as technician",
 			fields: fields{
-				validator: validator.NewValidator(),
-				msgBroker: climsgbroker.NewCLIMessageBroker(),
+				validator: validator.NewValidate(),
+				msgBroker: clibroker.NewCLIMessageBroker(),
 				taskRepo:  taskRepo,
 				userRepo:  userRepo,
 			},
@@ -118,8 +118,8 @@ func TestFinishTask_Execute(t *testing.T) {
 		{
 			name: "should not update task finished at if is a invalid task id",
 			fields: fields{
-				validator: validator.NewValidator(),
-				msgBroker: climsgbroker.NewCLIMessageBroker(),
+				validator: validator.NewValidate(),
+				msgBroker: clibroker.NewCLIMessageBroker(),
 				taskRepo:  taskRepo,
 				userRepo:  userRepo,
 			},
@@ -135,8 +135,8 @@ func TestFinishTask_Execute(t *testing.T) {
 		{
 			name: "should not update task finished at if is a invalid user id",
 			fields: fields{
-				validator: validator.NewValidator(),
-				msgBroker: climsgbroker.NewCLIMessageBroker(),
+				validator: validator.NewValidate(),
+				msgBroker: clibroker.NewCLIMessageBroker(),
 				taskRepo:  taskRepo,
 				userRepo:  userRepo,
 			},
@@ -152,8 +152,8 @@ func TestFinishTask_Execute(t *testing.T) {
 		{
 			name: "should not update task finished at if user does not exists",
 			fields: fields{
-				validator: validator.NewValidator(),
-				msgBroker: climsgbroker.NewCLIMessageBroker(),
+				validator: validator.NewValidate(),
+				msgBroker: clibroker.NewCLIMessageBroker(),
 				taskRepo:  taskRepo,
 				userRepo:  userRepo,
 			},
@@ -169,8 +169,8 @@ func TestFinishTask_Execute(t *testing.T) {
 		{
 			name: "should not update task finished at if task does not exists",
 			fields: fields{
-				validator: validator.NewValidator(),
-				msgBroker: climsgbroker.NewCLIMessageBroker(),
+				validator: validator.NewValidate(),
+				msgBroker: clibroker.NewCLIMessageBroker(),
 				taskRepo:  taskRepo,
 				userRepo:  userRepo,
 			},
@@ -198,7 +198,7 @@ func TestFinishTask_Execute(t *testing.T) {
 			wg.Add(1)
 			if tt.wantErr == nil {
 				_ = tt.fields.msgBroker.Subscribe(
-					msgbroker.TopicTaskFinished,
+					broker.TopicTaskFinished,
 					func(message []byte) {
 						defer wg.Done()
 						sentMessages++

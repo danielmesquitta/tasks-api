@@ -59,7 +59,10 @@ func (e *Err) ErrorWithStackTrace() string {
 }
 
 var (
-	ErrUserNotFound          = newErr("user not found", ErrTypeNotFound)
+	ErrUserNotFound = newErr(
+		"user not found",
+		ErrTypeNotFound,
+	)
 	ErrCreatedByUserNotFound = newErr(
 		"user creating task was not found",
 		ErrTypeNotFound,
@@ -68,8 +71,11 @@ var (
 		"user assigned to task was not found",
 		ErrTypeNotFound,
 	)
-	ErrTaskNotFound = newErr("task not found", ErrTypeNotFound)
-	ErrValidation   = newErr(
+	ErrTaskNotFound = newErr(
+		"task not found",
+		ErrTypeNotFound,
+	)
+	ErrValidation = newErr(
 		"validation error",
 		ErrTypeValidation,
 	)

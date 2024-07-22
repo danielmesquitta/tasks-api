@@ -3,7 +3,7 @@ package config
 import (
 	"os"
 
-	"github.com/danielmesquitta/tasks-api/pkg/validator"
+	"github.com/danielmesquitta/tasks-api/internal/pkg/validator"
 	"github.com/spf13/viper"
 )
 
@@ -16,7 +16,7 @@ const (
 )
 
 type Env struct {
-	validator *validator.Validator
+	validator validator.Validator
 
 	Environment          Environment `mapstructure:"ENVIRONMENT"`
 	Port                 string      `mapstructure:"PORT"`
@@ -40,7 +40,7 @@ func (e *Env) validate() error {
 	return nil
 }
 
-func LoadEnv(validator *validator.Validator) *Env {
+func LoadEnv(validator validator.Validator) *Env {
 	env := &Env{
 		validator: validator,
 	}

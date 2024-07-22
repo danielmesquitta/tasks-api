@@ -4,9 +4,9 @@ import (
 	"testing"
 
 	"github.com/danielmesquitta/tasks-api/internal/domain/entity"
+	"github.com/danielmesquitta/tasks-api/internal/pkg/hasher"
+	"github.com/danielmesquitta/tasks-api/internal/pkg/validator"
 	"github.com/danielmesquitta/tasks-api/internal/provider/repo/inmemoryrepo"
-	"github.com/danielmesquitta/tasks-api/pkg/cryptoutil"
-	"github.com/danielmesquitta/tasks-api/pkg/validator"
 	"github.com/danielmesquitta/tasks-api/test/testutil"
 	"github.com/google/uuid"
 )
@@ -25,12 +25,12 @@ func newUserRepo() *inmemoryrepo.InMemoryUserRepo {
 }
 
 func TestCreateUser_Execute(t *testing.T) {
-	val := validator.NewValidator()
-	bcr := cryptoutil.NewBcrypt()
+	val := validator.NewValidate()
+	bcr := hasher.NewBcrypt()
 
 	type fields struct {
-		val      *validator.Validator
-		bcr      *cryptoutil.Bcrypt
+		val      validator.Validator
+		bcr      hasher.Hasher
 		userRepo *inmemoryrepo.InMemoryUserRepo
 	}
 	type args struct {

@@ -5,26 +5,26 @@ import (
 	"strings"
 
 	"github.com/danielmesquitta/tasks-api/internal/domain/entity"
+	"github.com/danielmesquitta/tasks-api/internal/pkg/hasher"
+	"github.com/danielmesquitta/tasks-api/internal/pkg/validator"
 	"github.com/danielmesquitta/tasks-api/internal/provider/repo"
-	"github.com/danielmesquitta/tasks-api/pkg/cryptoutil"
-	"github.com/danielmesquitta/tasks-api/pkg/validator"
 	"github.com/jinzhu/copier"
 )
 
 type CreateUser struct {
-	val      *validator.Validator
-	bcr      *cryptoutil.Bcrypt
+	val      validator.Validator
+	hasher   hasher.Hasher
 	userRepo repo.UserRepo
 }
 
 func NewCreateUser(
-	val *validator.Validator,
-	bcr *cryptoutil.Bcrypt,
+	val validator.Validator,
+	hasher hasher.Hasher,
 	userRepo repo.UserRepo,
 ) *CreateUser {
 	return &CreateUser{
 		val:      val,
-		bcr:      bcr,
+		hasher:   hasher,
 		userRepo: userRepo,
 	}
 }
@@ -56,7 +56,7 @@ func (c *CreateUser) Execute(params CreateUserParams) error {
 		return entity.ErrEmailAlreadyExists
 	}
 
-	hashedPassword, err := c.bcr.Hash(params.Password)
+	hashedPassword, err := c.hasher.Hash(params.Password)
 	if err != nil {
 		return entity.NewErr(err)
 	}

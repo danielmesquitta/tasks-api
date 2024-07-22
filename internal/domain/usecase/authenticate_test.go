@@ -6,19 +6,19 @@ import (
 
 	"github.com/danielmesquitta/tasks-api/internal/config"
 	"github.com/danielmesquitta/tasks-api/internal/domain/entity"
+	"github.com/danielmesquitta/tasks-api/internal/pkg/hasher"
+	"github.com/danielmesquitta/tasks-api/internal/pkg/jwtutil"
+	"github.com/danielmesquitta/tasks-api/internal/pkg/validator"
 	"github.com/danielmesquitta/tasks-api/internal/provider/repo/inmemoryrepo"
-	"github.com/danielmesquitta/tasks-api/pkg/cryptoutil"
-	"github.com/danielmesquitta/tasks-api/pkg/jwtutil"
-	"github.com/danielmesquitta/tasks-api/pkg/validator"
 	"github.com/danielmesquitta/tasks-api/test/testutil"
 	"github.com/google/uuid"
 )
 
 func TestAuthenticate_Execute(t *testing.T) {
-	val := validator.NewValidator()
+	val := validator.NewValidate()
 	env := config.LoadEnv(val)
 	j := jwtutil.NewJWT(env)
-	bcr := cryptoutil.NewBcrypt()
+	bcr := hasher.NewBcrypt()
 
 	userRepo := inmemoryrepo.NewInMemoryUserRepo()
 
@@ -44,9 +44,9 @@ func TestAuthenticate_Execute(t *testing.T) {
 	)
 
 	type fields struct {
-		val      *validator.Validator
-		jwt      *jwtutil.JWT
-		bcrypt   *cryptoutil.Bcrypt
+		val      validator.Validator
+		jwt      jwtutil.JWTManager
+		bcrypt   hasher.Hasher
 		userRepo *inmemoryrepo.InMemoryUserRepo
 	}
 	type args struct {

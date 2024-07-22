@@ -1,4 +1,4 @@
-package cryptoutil
+package hasher
 
 import (
 	"github.com/danielmesquitta/tasks-api/internal/domain/entity"

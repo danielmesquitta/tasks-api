@@ -9,7 +9,7 @@ import (
 	"github.com/danielmesquitta/tasks-api/internal/app/http/dto"
 	"github.com/danielmesquitta/tasks-api/internal/domain/entity"
 	"github.com/danielmesquitta/tasks-api/internal/domain/usecase"
-	"github.com/danielmesquitta/tasks-api/pkg/jwtutil"
+	"github.com/danielmesquitta/tasks-api/internal/pkg/jwtutil"
 )
 
 type TaskHandler struct {

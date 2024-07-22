@@ -6,22 +6,22 @@ import (
 	"time"
 
 	"github.com/danielmesquitta/tasks-api/internal/domain/entity"
-	"github.com/danielmesquitta/tasks-api/internal/provider/msgbroker"
+	"github.com/danielmesquitta/tasks-api/internal/pkg/validator"
+	"github.com/danielmesquitta/tasks-api/internal/provider/broker"
 	"github.com/danielmesquitta/tasks-api/internal/provider/repo"
-	"github.com/danielmesquitta/tasks-api/pkg/validator"
 	"github.com/jinzhu/copier"
 )
 
 type FinishTask struct {
-	validator *validator.Validator
-	msgBroker msgbroker.MessageBroker
+	validator validator.Validator
+	msgBroker broker.MessageBroker
 	taskRepo  repo.TaskRepo
 	userRepo  repo.UserRepo
 }
 
 func NewFinishTask(
-	validator *validator.Validator,
-	msgBroker msgbroker.MessageBroker,
+	validator validator.Validator,
+	msgBroker broker.MessageBroker,
 	taskRepo repo.TaskRepo,
 	userRepo repo.UserRepo,
 ) *FinishTask {
@@ -91,7 +91,7 @@ func (f *FinishTask) Execute(params FinishTaskParams) error {
 		return entity.NewErr(err)
 	}
 
-	if err := f.msgBroker.Publish(msgbroker.TopicTaskFinished, taskBytes); err != nil {
+	if err := f.msgBroker.Publish(broker.TopicTaskFinished, taskBytes); err != nil {
 		return entity.NewErr(err)
 	}
 

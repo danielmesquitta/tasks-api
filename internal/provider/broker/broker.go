@@ -1,4 +1,4 @@
-package msgbroker
+package broker
 
 type Topic string
 

@@ -18,11 +18,6 @@ func NewJWT(
 	}
 }
 
-type UserClaims struct {
-	Role entity.Role `json:"role,omitempty"`
-	jwt.RegisteredClaims
-}
-
 func (j *JWT) NewAccessToken(claims UserClaims) (string, error) {
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
@@ -55,14 +50,24 @@ func (j *JWT) ParseAccessToken(accessToken string) (*UserClaims, error) {
 	return userClaims, nil
 }
 
-func (j *JWT) ParseRefreshToken(refreshToken string) *jwt.RegisteredClaims {
-	parsedRefreshToken, _ := jwt.ParseWithClaims(
+func (j *JWT) ParseRefreshToken(
+	refreshToken string,
+) (*jwt.RegisteredClaims, error) {
+	parsedRefreshToken, err := jwt.ParseWithClaims(
 		refreshToken,
 		&jwt.RegisteredClaims{},
 		func(token *jwt.Token) (interface{}, error) {
 			return j.secretKey, nil
 		},
 	)
+	if err != nil {
+		return nil, entity.NewErr(err)
+	}
 
-	return parsedRefreshToken.Claims.(*jwt.RegisteredClaims)
+	claims, ok := parsedRefreshToken.Claims.(*jwt.RegisteredClaims)
+	if !ok {
+		return nil, entity.NewErr("invalid claims")
+	}
+
+	return claims, nil
 }

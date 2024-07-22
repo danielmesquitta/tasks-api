@@ -1,21 +1,22 @@
 package http
 
 import (
+	"go.uber.org/fx"
+
 	"github.com/danielmesquitta/tasks-api/internal/app/http/handler"
 	"github.com/danielmesquitta/tasks-api/internal/app/http/middleware"
 	"github.com/danielmesquitta/tasks-api/internal/app/http/router"
 	"github.com/danielmesquitta/tasks-api/internal/config"
 	"github.com/danielmesquitta/tasks-api/internal/domain/usecase"
-	"github.com/danielmesquitta/tasks-api/internal/provider/msgbroker"
-	"github.com/danielmesquitta/tasks-api/internal/provider/msgbroker/climsgbroker"
+	"github.com/danielmesquitta/tasks-api/internal/pkg/hasher"
+	"github.com/danielmesquitta/tasks-api/internal/pkg/jwtutil"
+	"github.com/danielmesquitta/tasks-api/internal/pkg/symcrypt"
+	"github.com/danielmesquitta/tasks-api/internal/pkg/validator"
+	"github.com/danielmesquitta/tasks-api/internal/provider/broker"
+	"github.com/danielmesquitta/tasks-api/internal/provider/broker/clibroker"
 	"github.com/danielmesquitta/tasks-api/internal/provider/repo"
 	"github.com/danielmesquitta/tasks-api/internal/provider/repo/mysqlrepo"
-	"github.com/danielmesquitta/tasks-api/pkg/cryptoutil"
-	"github.com/danielmesquitta/tasks-api/pkg/jwtutil"
-	"github.com/danielmesquitta/tasks-api/pkg/logger"
-	"github.com/danielmesquitta/tasks-api/pkg/validator"
 	"github.com/labstack/echo/v4"
-	"go.uber.org/fx"
 )
 
 func Start() {
@@ -24,11 +25,22 @@ func Start() {
 		config.LoadEnv,
 
 		// PKGs
-		validator.NewValidator,
-		logger.NewLogger,
-		cryptoutil.NewAESCrypto,
-		cryptoutil.NewBcrypt,
-		jwtutil.NewJWT,
+		fx.Annotate(
+			validator.NewValidate,
+			fx.As(new(validator.Validator)),
+		),
+		fx.Annotate(
+			symcrypt.NewAESCrypto,
+			fx.As(new(symcrypt.SymmetricalEncrypter)),
+		),
+		fx.Annotate(
+			hasher.NewBcrypt,
+			fx.As(new(hasher.Hasher)),
+		),
+		fx.Annotate(
+			jwtutil.NewJWT,
+			fx.As(new(jwtutil.JWTManager)),
+		),
 
 		// Providers
 		mysqlrepo.NewMySQLDBConn,
@@ -42,8 +54,8 @@ func Start() {
 		),
 
 		fx.Annotate(
-			climsgbroker.NewCLIMessageBroker,
-			fx.As(new(msgbroker.MessageBroker)),
+			clibroker.NewCLIMessageBroker,
+			fx.As(new(broker.MessageBroker)),
 		),
 
 		// Use cases

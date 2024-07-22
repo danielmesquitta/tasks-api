@@ -4,25 +4,25 @@ import (
 	"context"
 
 	"github.com/danielmesquitta/tasks-api/internal/domain/entity"
+	"github.com/danielmesquitta/tasks-api/internal/pkg/symcrypt"
+	"github.com/danielmesquitta/tasks-api/internal/pkg/validator"
 	"github.com/danielmesquitta/tasks-api/internal/provider/repo"
-	"github.com/danielmesquitta/tasks-api/pkg/cryptoutil"
-	"github.com/danielmesquitta/tasks-api/pkg/validator"
 )
 
 type ListTasks struct {
-	validator *validator.Validator
-	crypto    *cryptoutil.AESCrypto
+	validator validator.Validator
+	symCrypto symcrypt.SymmetricalEncrypter
 	taskRepo  repo.TaskRepo
 }
 
 func NewListTasks(
-	validator *validator.Validator,
-	crypto *cryptoutil.AESCrypto,
+	validator validator.Validator,
+	symCrypto symcrypt.SymmetricalEncrypter,
 	taskRepo repo.TaskRepo,
 ) *ListTasks {
 	return &ListTasks{
 		validator: validator,
-		crypto:    crypto,
+		symCrypto: symCrypto,
 		taskRepo:  taskRepo,
 	}
 }
@@ -65,7 +65,7 @@ func (l *ListTasks) Execute(
 	copy(tasks, results)
 
 	for i, task := range tasks {
-		decryptedSummary, err := l.crypto.Decrypt(task.Summary)
+		decryptedSummary, err := l.symCrypto.Decrypt(task.Summary)
 		if err != nil {
 			return nil, entity.NewErr(err)
 		}
