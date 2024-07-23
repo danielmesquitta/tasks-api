@@ -111,4 +111,8 @@ var (
 		"only managers can update the assigned user of a task",
 		ErrTypeForbidden,
 	)
+	ErrUserNotAllowedToViewTask = newErr(
+		"only users with the role of manager or those assigned to this task can view it",
+		ErrTypeForbidden,
+	)
 )
