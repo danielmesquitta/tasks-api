@@ -16,20 +16,17 @@ type FinishTask struct {
 	validator validator.Validator
 	msgBroker broker.MessageBroker
 	taskRepo  repo.TaskRepo
-	userRepo  repo.UserRepo
 }
 
 func NewFinishTask(
 	validator validator.Validator,
 	msgBroker broker.MessageBroker,
 	taskRepo repo.TaskRepo,
-	userRepo repo.UserRepo,
 ) *FinishTask {
 	return &FinishTask{
 		validator: validator,
 		msgBroker: msgBroker,
 		taskRepo:  taskRepo,
-		userRepo:  userRepo,
 	}
 }
 
@@ -48,19 +45,6 @@ func (f *FinishTask) Execute(params FinishTaskParams) error {
 		validationErr := entity.ErrValidation
 		validationErr.Message = err.Error()
 		return validationErr
-	}
-
-	user, err := f.userRepo.GetUserByID(context.Background(), params.UserID)
-	if err != nil {
-		return entity.NewErr(err)
-	}
-
-	if user.ID == "" {
-		return entity.ErrUserNotFound
-	}
-
-	if user.Role != entity.RoleTechnician {
-		return entity.ErrUserNotAllowedToFinishTask
 	}
 
 	task, err := f.taskRepo.GetTaskByID(context.Background(), params.TaskID)

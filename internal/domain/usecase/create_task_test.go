@@ -16,9 +16,7 @@ import (
 func TestCreateTask_Execute(t *testing.T) {
 	val := validator.NewValidate()
 	env := config.LoadEnv(val)
-	aesCrypto := symcrypt.NewAESCrypto(env)
-
-	userRepo := inmemoryrepo.NewInMemoryUserRepo()
+	symCrypto := symcrypt.NewAESCrypto(env)
 
 	managerUser := entity.User{
 		ID:   uuid.NewString(),
@@ -30,15 +28,19 @@ func TestCreateTask_Execute(t *testing.T) {
 		Role: entity.RoleTechnician,
 	}
 
-	userRepo.Users = append(
-		userRepo.Users,
-		managerUser,
-		technicianUser,
-	)
+	newUserRepo := func() *inmemoryrepo.InMemoryUserRepo {
+		userRepo := inmemoryrepo.NewInMemoryUserRepo()
+		userRepo.Users = append(
+			userRepo.Users,
+			managerUser,
+			technicianUser,
+		)
+		return userRepo
+	}
 
 	type fields struct {
 		validator validator.Validator
-		crypto    symcrypt.SymmetricalEncrypter
+		symCrypto symcrypt.SymmetricalEncrypter
 		taskRepo  *inmemoryrepo.InMemoryTaskRepo
 		userRepo  *inmemoryrepo.InMemoryUserRepo
 	}
@@ -55,9 +57,9 @@ func TestCreateTask_Execute(t *testing.T) {
 			name: "should create a task",
 			fields: fields{
 				validator: val,
-				crypto:    aesCrypto,
+				symCrypto: symCrypto,
 				taskRepo:  inmemoryrepo.NewInMemoryTaskRepo(),
-				userRepo:  userRepo,
+				userRepo:  newUserRepo(),
 			},
 			args: args{
 				params: CreateTaskParams{
@@ -70,12 +72,29 @@ func TestCreateTask_Execute(t *testing.T) {
 			wantErr: nil,
 		},
 		{
+			name: "should create a task with empty assigned user",
+			fields: fields{
+				validator: val,
+				symCrypto: symCrypto,
+				taskRepo:  inmemoryrepo.NewInMemoryTaskRepo(),
+				userRepo:  newUserRepo(),
+			},
+			args: args{
+				params: CreateTaskParams{
+					UserRole:        entity.RoleManager,
+					Summary:         "Loren ipsum dolor sit amet",
+					CreatedByUserID: managerUser.ID,
+				},
+			},
+			wantErr: nil,
+		},
+		{
 			name: "should not create a task if user role is not manager",
 			fields: fields{
 				validator: val,
-				crypto:    aesCrypto,
+				symCrypto: symCrypto,
 				taskRepo:  inmemoryrepo.NewInMemoryTaskRepo(),
-				userRepo:  userRepo,
+				userRepo:  newUserRepo(),
 			},
 			args: args{
 				params: CreateTaskParams{
@@ -91,9 +110,9 @@ func TestCreateTask_Execute(t *testing.T) {
 			name: "should not create a task if user is trying to pass as a manager",
 			fields: fields{
 				validator: val,
-				crypto:    aesCrypto,
+				symCrypto: symCrypto,
 				taskRepo:  inmemoryrepo.NewInMemoryTaskRepo(),
-				userRepo:  userRepo,
+				userRepo:  newUserRepo(),
 			},
 			args: args{
 				params: CreateTaskParams{
@@ -109,7 +128,7 @@ func TestCreateTask_Execute(t *testing.T) {
 			name: "should not create a task if created by user is not found",
 			fields: fields{
 				validator: val,
-				crypto:    aesCrypto,
+				symCrypto: symCrypto,
 				taskRepo:  inmemoryrepo.NewInMemoryTaskRepo(),
 				userRepo: func() *inmemoryrepo.InMemoryUserRepo {
 					customUserRepo := inmemoryrepo.NewInMemoryUserRepo()
@@ -134,7 +153,7 @@ func TestCreateTask_Execute(t *testing.T) {
 			name: "should not create a task if assigned to user is not found",
 			fields: fields{
 				validator: val,
-				crypto:    aesCrypto,
+				symCrypto: symCrypto,
 				taskRepo:  inmemoryrepo.NewInMemoryTaskRepo(),
 				userRepo: func() *inmemoryrepo.InMemoryUserRepo {
 					customUserRepo := inmemoryrepo.NewInMemoryUserRepo()
@@ -159,9 +178,9 @@ func TestCreateTask_Execute(t *testing.T) {
 			name: "should not create a task if assigned to user is not a technician",
 			fields: fields{
 				validator: val,
-				crypto:    aesCrypto,
+				symCrypto: symCrypto,
 				taskRepo:  inmemoryrepo.NewInMemoryTaskRepo(),
-				userRepo:  userRepo,
+				userRepo:  newUserRepo(),
 			},
 			args: args{
 				params: CreateTaskParams{
@@ -177,9 +196,9 @@ func TestCreateTask_Execute(t *testing.T) {
 			name: "should not create a task if summary is greater than 2500 characters",
 			fields: fields{
 				validator: val,
-				crypto:    aesCrypto,
+				symCrypto: symCrypto,
 				taskRepo:  inmemoryrepo.NewInMemoryTaskRepo(),
-				userRepo:  userRepo,
+				userRepo:  newUserRepo(),
 			},
 			args: args{
 				params: CreateTaskParams{
@@ -195,9 +214,9 @@ func TestCreateTask_Execute(t *testing.T) {
 			name: "should not create a task if created by user id is invalid",
 			fields: fields{
 				validator: val,
-				crypto:    aesCrypto,
+				symCrypto: symCrypto,
 				taskRepo:  inmemoryrepo.NewInMemoryTaskRepo(),
-				userRepo:  userRepo,
+				userRepo:  newUserRepo(),
 			},
 			args: args{
 				params: CreateTaskParams{
@@ -213,9 +232,9 @@ func TestCreateTask_Execute(t *testing.T) {
 			name: "should not create a task if assigned to user id is invalid",
 			fields: fields{
 				validator: val,
-				crypto:    aesCrypto,
+				symCrypto: symCrypto,
 				taskRepo:  inmemoryrepo.NewInMemoryTaskRepo(),
-				userRepo:  userRepo,
+				userRepo:  newUserRepo(),
 			},
 			args: args{
 				params: CreateTaskParams{
@@ -230,9 +249,11 @@ func TestCreateTask_Execute(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			c := NewCreateTask(
 				tt.fields.validator,
-				tt.fields.crypto,
+				tt.fields.symCrypto,
 				tt.fields.taskRepo,
 				tt.fields.userRepo,
 			)
@@ -244,6 +265,30 @@ func TestCreateTask_Execute(t *testing.T) {
 					tt.wantErr,
 				)
 				return
+			}
+
+			if err != nil {
+				return
+			}
+
+			lastCreatedTask := tt.fields.taskRepo.Tasks[len(tt.fields.taskRepo.Tasks)-1]
+			if !testutil.CompareAsPtr(
+				lastCreatedTask.AssignedToUserID,
+				tt.args.params.AssignedToUserID,
+			) {
+				t.Errorf(
+					"CreateTask.Execute() assigned to user id = %s, want %s",
+					*lastCreatedTask.AssignedToUserID,
+					tt.args.params.AssignedToUserID,
+				)
+			}
+
+			if lastCreatedTask.CreatedByUserID != tt.args.params.CreatedByUserID {
+				t.Errorf(
+					"CreateTask.Execute() created by user id = %s, want %s",
+					lastCreatedTask.CreatedByUserID,
+					tt.args.params.CreatedByUserID,
+				)
 			}
 		})
 	}

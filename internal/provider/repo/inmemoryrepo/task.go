@@ -46,7 +46,8 @@ func (im *InMemoryTaskRepo) ListTasks(
 	if params.AssignedToUserID != "" {
 		var tasks []entity.Task
 		for _, task := range im.Tasks {
-			if task.AssignedToUserID == params.AssignedToUserID {
+			if task.AssignedToUserID != nil &&
+				*task.AssignedToUserID == params.AssignedToUserID {
 				tasks = append(tasks, task)
 			}
 		}

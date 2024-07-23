@@ -8,15 +8,15 @@ import (
 )
 
 type CreateTaskParams struct {
-	Summary          string `json:"summary"`
-	CreatedByUserID  string `json:"created_by_user_id"`
-	AssignedToUserID string `json:"assigned_to_user_id"`
+	Summary          string  `json:"summary"`
+	CreatedByUserID  string  `json:"created_by_user_id"`
+	AssignedToUserID *string `json:"assigned_to_user_id"`
 }
 
 type UpdateTaskParams struct {
 	ID               string    `json:"id"`
 	Summary          string    `json:"summary"`
-	AssignedToUserID string    `json:"assigned_to_user_id"`
+	AssignedToUserID *string   `json:"assigned_to_user_id"`
 	FinishedAt       time.Time `json:"finished_at"`
 }
 

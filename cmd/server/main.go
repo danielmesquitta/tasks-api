@@ -1,8 +1,6 @@
 package main
 
-import (
-	"github.com/danielmesquitta/tasks-api/internal/app/http"
-)
+import "github.com/danielmesquitta/tasks-api/internal/app/http"
 
 // @title Tasks API
 // @version 1.0

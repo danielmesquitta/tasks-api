@@ -99,4 +99,16 @@ var (
 		"email is already registered",
 		ErrTypeValidation,
 	)
+	ErrUserNotAllowedToDeleteTask = newErr(
+		"only users with the role manager can delete tasks",
+		ErrTypeForbidden,
+	)
+	ErrUserNotAllowedToUpdateTask = newErr(
+		"only users with the role of manager or those assigned to this task can update it",
+		ErrTypeForbidden,
+	)
+	ErrUserNotAllowedToUpdateAssignedUser = newErr(
+		"only managers can update the assigned user of a task",
+		ErrTypeForbidden,
+	)
 )

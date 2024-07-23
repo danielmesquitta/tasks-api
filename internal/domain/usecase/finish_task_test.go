@@ -15,31 +15,21 @@ import (
 )
 
 func TestFinishTask_Execute(t *testing.T) {
-	userRepo := inmemoryrepo.NewInMemoryUserRepo()
-
 	managerUser := entity.User{
-		ID:   uuid.NewString(),
-		Role: entity.RoleManager,
+		ID: uuid.NewString(),
 	}
 
 	technicianUser := entity.User{
-		ID:   uuid.NewString(),
-		Role: entity.RoleTechnician,
+		ID: uuid.NewString(),
 	}
-
-	userRepo.Users = append(
-		userRepo.Users,
-		managerUser,
-		technicianUser,
-	)
 
 	taskRepo := inmemoryrepo.NewInMemoryTaskRepo()
 
 	task := entity.Task{
 		ID:               uuid.NewString(),
 		Summary:          "Loren ipsum dolor sit amet",
-		AssignedToUserID: technicianUser.ID,
-		CreatedByUserID:  uuid.NewString(),
+		AssignedToUserID: &technicianUser.ID,
+		CreatedByUserID:  managerUser.ID,
 		CreatedAt:        time.Now(),
 		UpdatedAt:        time.Now(),
 	}
@@ -53,7 +43,6 @@ func TestFinishTask_Execute(t *testing.T) {
 		validator validator.Validator
 		msgBroker *clibroker.CLIMessageBroker
 		taskRepo  *inmemoryrepo.InMemoryTaskRepo
-		userRepo  *inmemoryrepo.InMemoryUserRepo
 	}
 	type args struct {
 		params FinishTaskParams
@@ -70,7 +59,6 @@ func TestFinishTask_Execute(t *testing.T) {
 				validator: validator.NewValidate(),
 				msgBroker: clibroker.NewCLIMessageBroker(),
 				taskRepo:  taskRepo,
-				userRepo:  userRepo,
 			},
 			args: args{
 				params: FinishTaskParams{
@@ -87,7 +75,6 @@ func TestFinishTask_Execute(t *testing.T) {
 				validator: validator.NewValidate(),
 				msgBroker: clibroker.NewCLIMessageBroker(),
 				taskRepo:  taskRepo,
-				userRepo:  userRepo,
 			},
 			args: args{
 				params: FinishTaskParams{
@@ -99,29 +86,11 @@ func TestFinishTask_Execute(t *testing.T) {
 			wantErr: entity.ErrUserNotAllowedToFinishTask,
 		},
 		{
-			name: "should not update task finished at if user is trying to pass as technician",
-			fields: fields{
-				validator: validator.NewValidate(),
-				msgBroker: clibroker.NewCLIMessageBroker(),
-				taskRepo:  taskRepo,
-				userRepo:  userRepo,
-			},
-			args: args{
-				params: FinishTaskParams{
-					TaskID:   task.ID,
-					UserID:   managerUser.ID,
-					UserRole: entity.RoleTechnician,
-				},
-			},
-			wantErr: entity.ErrUserNotAllowedToFinishTask,
-		},
-		{
 			name: "should not update task finished at if is a invalid task id",
 			fields: fields{
 				validator: validator.NewValidate(),
 				msgBroker: clibroker.NewCLIMessageBroker(),
 				taskRepo:  taskRepo,
-				userRepo:  userRepo,
 			},
 			args: args{
 				params: FinishTaskParams{
@@ -138,7 +107,6 @@ func TestFinishTask_Execute(t *testing.T) {
 				validator: validator.NewValidate(),
 				msgBroker: clibroker.NewCLIMessageBroker(),
 				taskRepo:  taskRepo,
-				userRepo:  userRepo,
 			},
 			args: args{
 				params: FinishTaskParams{
@@ -150,29 +118,11 @@ func TestFinishTask_Execute(t *testing.T) {
 			wantErr: entity.ErrValidation,
 		},
 		{
-			name: "should not update task finished at if user does not exists",
-			fields: fields{
-				validator: validator.NewValidate(),
-				msgBroker: clibroker.NewCLIMessageBroker(),
-				taskRepo:  taskRepo,
-				userRepo:  userRepo,
-			},
-			args: args{
-				params: FinishTaskParams{
-					TaskID:   task.ID,
-					UserID:   uuid.NewString(),
-					UserRole: entity.RoleTechnician,
-				},
-			},
-			wantErr: entity.ErrUserNotFound,
-		},
-		{
 			name: "should not update task finished at if task does not exists",
 			fields: fields{
 				validator: validator.NewValidate(),
 				msgBroker: clibroker.NewCLIMessageBroker(),
 				taskRepo:  taskRepo,
-				userRepo:  userRepo,
 			},
 			args: args{
 				params: FinishTaskParams{
@@ -186,11 +136,12 @@ func TestFinishTask_Execute(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			f := NewFinishTask(
 				tt.fields.validator,
 				tt.fields.msgBroker,
 				tt.fields.taskRepo,
-				tt.fields.userRepo,
 			)
 
 			sentMessages := 0

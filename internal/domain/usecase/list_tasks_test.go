@@ -17,7 +17,7 @@ import (
 func TestListTasks_Execute(t *testing.T) {
 	val := validator.NewValidate()
 	env := config.LoadEnv(val)
-	cry := symcrypt.NewAESCrypto(env)
+	symCrypto := symcrypt.NewAESCrypto(env)
 
 	taskRepo := inmemoryrepo.NewInMemoryTaskRepo()
 
@@ -25,7 +25,7 @@ func TestListTasks_Execute(t *testing.T) {
 	firstTechnicianID := uuid.NewString()
 	secondTechnicianID := uuid.NewString()
 
-	encryptedSummary, err := cry.Encrypt("Lorem ipsum dolor sit amet")
+	encryptedSummary, err := symCrypto.Encrypt("Lorem ipsum dolor sit amet")
 	if err != nil {
 		t.Fatalf("could not encrypt summary")
 	}
@@ -33,7 +33,7 @@ func TestListTasks_Execute(t *testing.T) {
 	task1 := entity.Task{
 		ID:               uuid.NewString(),
 		Summary:          encryptedSummary,
-		AssignedToUserID: firstTechnicianID,
+		AssignedToUserID: &firstTechnicianID,
 		CreatedByUserID:  managerID,
 		CreatedAt:        time.Now(),
 		UpdatedAt:        time.Now(),
@@ -42,7 +42,7 @@ func TestListTasks_Execute(t *testing.T) {
 	task2 := entity.Task{
 		ID:               uuid.NewString(),
 		Summary:          encryptedSummary,
-		AssignedToUserID: firstTechnicianID,
+		AssignedToUserID: &firstTechnicianID,
 		CreatedByUserID:  managerID,
 		CreatedAt:        time.Now(),
 		UpdatedAt:        time.Now(),
@@ -51,7 +51,7 @@ func TestListTasks_Execute(t *testing.T) {
 	task3 := entity.Task{
 		ID:               uuid.NewString(),
 		Summary:          encryptedSummary,
-		AssignedToUserID: secondTechnicianID,
+		AssignedToUserID: &secondTechnicianID,
 		CreatedByUserID:  managerID,
 		CreatedAt:        time.Now(),
 		UpdatedAt:        time.Now(),
@@ -66,7 +66,7 @@ func TestListTasks_Execute(t *testing.T) {
 
 	type fields struct {
 		validator validator.Validator
-		crypto    symcrypt.SymmetricalEncrypter
+		symCrypto symcrypt.SymmetricalEncrypter
 		taskRepo  repo.TaskRepo
 	}
 	type args struct {
@@ -83,7 +83,7 @@ func TestListTasks_Execute(t *testing.T) {
 			name: "should list all tasks for the manager",
 			fields: fields{
 				validator: val,
-				crypto:    cry,
+				symCrypto: symCrypto,
 				taskRepo:  taskRepo,
 			},
 			args: args{
@@ -103,7 +103,7 @@ func TestListTasks_Execute(t *testing.T) {
 			name: "should list only the tasks assigned to the first technician",
 			fields: fields{
 				validator: val,
-				crypto:    cry,
+				symCrypto: symCrypto,
 				taskRepo:  taskRepo,
 			},
 			args: args{
@@ -122,7 +122,7 @@ func TestListTasks_Execute(t *testing.T) {
 			name: "should list only the tasks assigned to the second technician",
 			fields: fields{
 				validator: val,
-				crypto:    cry,
+				symCrypto: symCrypto,
 				taskRepo:  taskRepo,
 			},
 			args: args{
@@ -140,7 +140,7 @@ func TestListTasks_Execute(t *testing.T) {
 			name: "should not list task if invalid id is provided",
 			fields: fields{
 				validator: val,
-				crypto:    cry,
+				symCrypto: symCrypto,
 				taskRepo:  taskRepo,
 			},
 			args: args{
@@ -156,7 +156,7 @@ func TestListTasks_Execute(t *testing.T) {
 			name: "should not list task if invalid role is provided",
 			fields: fields{
 				validator: val,
-				crypto:    cry,
+				symCrypto: symCrypto,
 				taskRepo:  taskRepo,
 			},
 			args: args{
@@ -171,9 +171,11 @@ func TestListTasks_Execute(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			l := NewListTasks(
 				tt.fields.validator,
-				tt.fields.crypto,
+				tt.fields.symCrypto,
 				tt.fields.taskRepo,
 			)
 

@@ -36,7 +36,7 @@ type CreateTaskParams struct {
 	UserRole         entity.Role `json:"user_role,omitempty"           validate:"required,min=1,max=2"`
 	Summary          string      `json:"summary,omitempty"             validate:"required,max=2500"`
 	CreatedByUserID  string      `json:"created_by_user_id,omitempty"  validate:"required,uuid"`
-	AssignedToUserID string      `json:"assigned_to_user_id,omitempty" validate:"uuid,omitempty"`
+	AssignedToUserID string      `json:"assigned_to_user_id,omitempty" validate:"omitempty,uuid"`
 }
 
 func (c *CreateTask) Execute(params CreateTaskParams) error {
@@ -63,8 +63,12 @@ func (c *CreateTask) Execute(params CreateTaskParams) error {
 		)
 	}()
 
+	assignedUserIsDefined := params.AssignedToUserID != ""
 	go func() {
 		defer wg.Done()
+		if !assignedUserIsDefined {
+			return
+		}
 		assignedToUser, err = c.userRepo.GetUserByID(
 			context.Background(),
 			params.AssignedToUserID,
@@ -81,16 +85,18 @@ func (c *CreateTask) Execute(params CreateTaskParams) error {
 		return entity.ErrCreatedByUserNotFound
 	}
 
-	if assignedToUser.ID == "" {
-		return entity.ErrAssignToUserNotFound
-	}
-
 	if createdByUser.Role != entity.RoleManager {
 		return entity.ErrUserNotAllowedToCreateTask
 	}
 
-	if assignedToUser.Role != entity.RoleTechnician {
-		return entity.ErrInvalidRoleForAssignedUser
+	if assignedUserIsDefined {
+		if assignedToUser.ID == "" {
+			return entity.ErrAssignToUserNotFound
+		}
+
+		if assignedToUser.Role != entity.RoleTechnician {
+			return entity.ErrInvalidRoleForAssignedUser
+		}
 	}
 
 	encryptedSummary, err := c.symCrypto.Encrypt(params.Summary)
@@ -101,7 +107,9 @@ func (c *CreateTask) Execute(params CreateTaskParams) error {
 	params.Summary = encryptedSummary
 
 	repoParams := repo.CreateTaskParams{}
-	if err = copier.Copy(&repoParams, params); err != nil {
+	if err = copier.CopyWithOption(&repoParams, params, copier.Option{
+		IgnoreEmpty: true,
+	}); err != nil {
 		return entity.NewErr(err)
 	}
 

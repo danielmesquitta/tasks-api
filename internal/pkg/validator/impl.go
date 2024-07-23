@@ -11,8 +11,8 @@ import (
 )
 
 type Validate struct {
-	validate *validator.Validate
-	trans    ut.Translator
+	val   *validator.Validate
+	trans ut.Translator
 }
 
 func NewValidate() *Validate {
@@ -40,7 +40,7 @@ func NewValidate() *Validate {
 func (v *Validate) Validate(
 	data any,
 ) error {
-	err := v.validate.Struct(data)
+	err := v.val.Struct(data)
 	if err == nil {
 		return nil
 	}

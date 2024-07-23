@@ -109,5 +109,9 @@ func (m MySQLTaskRepo) UpdateTask(
 }
 
 func (m MySQLTaskRepo) DeleteTask(ctx context.Context, id string) error {
-	panic("not implemented") // TODO: Implement
+	if err := m.db.DeleteTask(ctx, id); err != nil {
+		return entity.NewErr(err)
+	}
+
+	return nil
 }

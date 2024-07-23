@@ -11,22 +11,22 @@ import (
 	"github.com/google/uuid"
 )
 
-func newUserRepo() *inmemoryrepo.InMemoryUserRepo {
-	userRepo := inmemoryrepo.NewInMemoryUserRepo()
-
-	existingUser := entity.User{
-		ID:    uuid.NewString(),
-		Email: "existing-user@email.com",
-	}
-
-	userRepo.Users = append(userRepo.Users, existingUser)
-
-	return userRepo
-}
-
 func TestCreateUser_Execute(t *testing.T) {
 	val := validator.NewValidate()
 	bcr := hasher.NewBcrypt()
+
+	newUserRepo := func() *inmemoryrepo.InMemoryUserRepo {
+		userRepo := inmemoryrepo.NewInMemoryUserRepo()
+
+		existingUser := entity.User{
+			ID:    uuid.NewString(),
+			Email: "existing-user@email.com",
+		}
+
+		userRepo.Users = append(userRepo.Users, existingUser)
+
+		return userRepo
+	}
 
 	type fields struct {
 		val      validator.Validator
@@ -162,6 +162,8 @@ func TestCreateUser_Execute(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			c := NewCreateUser(
 				tt.fields.val,
 				tt.fields.bcr,
