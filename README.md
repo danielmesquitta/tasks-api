@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is an Tasks API CRUD.
+This is a Tasks API CRUD.
 It is written in Go and uses the Echo framework and a MySQL database.
 It implements unit tests, dependency injection, clean architecture concepts
 and uses the repository, builder and option patterns.
