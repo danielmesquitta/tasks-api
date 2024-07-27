@@ -34,7 +34,7 @@ func (j *JWT) ParseAccessToken(accessToken string) (*UserClaims, error) {
 	parsedAccessToken, err := jwt.ParseWithClaims(
 		accessToken,
 		&UserClaims{},
-		func(token *jwt.Token) (interface{}, error) {
+		func(_ *jwt.Token) (interface{}, error) {
 			return j.secretKey, nil
 		},
 	)
@@ -56,7 +56,7 @@ func (j *JWT) ParseRefreshToken(
 	parsedRefreshToken, err := jwt.ParseWithClaims(
 		refreshToken,
 		&jwt.RegisteredClaims{},
-		func(token *jwt.Token) (interface{}, error) {
+		func(_ *jwt.Token) (interface{}, error) {
 			return j.secretKey, nil
 		},
 	)

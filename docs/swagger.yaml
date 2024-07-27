@@ -130,6 +130,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/dto.ErrorResponseDTO'
+      security:
+      - BearerAuth: []
       summary: List tasks
       tags:
       - Tasks
@@ -161,6 +163,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/dto.ErrorResponseDTO'
+      security:
+      - BearerAuth: []
       summary: Create task
       tags:
       - Tasks
@@ -192,6 +196,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/dto.ErrorResponseDTO'
+      security:
+      - BearerAuth: []
       summary: Finish task
       tags:
       - Tasks
@@ -221,7 +227,17 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/dto.ErrorResponseDTO'
+      security:
+      - BasicAuth: []
       summary: Create user
       tags:
       - Users
+securityDefinitions:
+  BasicAuth:
+    type: basic
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

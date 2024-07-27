@@ -4,15 +4,16 @@ import (
 	"github.com/labstack/echo/v4"
 	echoSwagger "github.com/swaggo/echo-swagger"
 
-	_ "github.com/danielmesquitta/tasks-api/docs"
+	_ "github.com/danielmesquitta/tasks-api/docs" // swagger docs
+
 	"github.com/danielmesquitta/tasks-api/internal/app/http/handler"
-	"github.com/danielmesquitta/tasks-api/internal/app/http/middleware"
+	mid "github.com/danielmesquitta/tasks-api/internal/app/http/middleware"
 	"github.com/danielmesquitta/tasks-api/internal/config"
 )
 
 type Router struct {
 	env         *config.Env
-	mid         *middleware.Middleware
+	mid         *mid.Middleware
 	authHandler *handler.AuthHandler
 	userHandler *handler.UserHandler
 	taskHandler *handler.TaskHandler
@@ -20,7 +21,7 @@ type Router struct {
 
 func NewRouter(
 	env *config.Env,
-	mid *middleware.Middleware,
+	mid *mid.Middleware,
 	authHandler *handler.AuthHandler,
 	userHandler *handler.UserHandler,
 	taskHandler *handler.TaskHandler,
@@ -42,7 +43,7 @@ func (r *Router) Register(
 
 	apiV1.GET("/docs/*", echoSwagger.WrapHandler)
 
-	apiV1.POST("/users", r.userHandler.Create)
+	apiV1.POST("/users", r.userHandler.Create, r.mid.BasicAuth)
 
 	apiV1.POST("/auth/login", r.authHandler.Login)
 

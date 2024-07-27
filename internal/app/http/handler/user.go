@@ -23,6 +23,7 @@ func NewUserHandler(
 // @Summary Create user
 // @Description Create new user account (for role manager use 1 and for technician use 2)
 // @Tags Users
+// @Security BasicAuth
 // @Accept json
 // @Produce json
 // @Param request body dto.CreateUserRequestDTO true "Request body"

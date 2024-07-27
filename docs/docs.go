@@ -72,6 +72,11 @@ const docTemplate = `{
         },
         "/tasks": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "List tasks",
                 "consumes": [
                     "application/json"
@@ -114,6 +119,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create new task",
                 "consumes": [
                     "application/json"
@@ -163,6 +173,11 @@ const docTemplate = `{
         },
         "/tasks/{id}/finished": {
             "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Mark task as finished",
                 "consumes": [
                     "application/json"
@@ -210,6 +225,11 @@ const docTemplate = `{
         },
         "/users": {
             "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Create new user account (for role manager use 1 and for technician use 2)",
                 "consumes": [
                     "application/json"
@@ -347,6 +367,17 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BasicAuth": {
+            "type": "basic"
+        },
+        "BearerAuth": {
+            "description": "Type \"Bearer\" followed by a space and JWT token.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`

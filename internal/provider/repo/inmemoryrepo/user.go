@@ -21,7 +21,7 @@ func NewInMemoryUserRepo() *InMemoryUserRepo {
 }
 
 func (im *InMemoryUserRepo) CreateUser(
-	ctx context.Context,
+	_ context.Context,
 	params repo.CreateUserParams,
 ) error {
 	user := entity.User{}
@@ -39,7 +39,7 @@ func (im *InMemoryUserRepo) CreateUser(
 }
 
 func (im *InMemoryUserRepo) GetUserByID(
-	ctx context.Context,
+	_ context.Context,
 	id string,
 ) (entity.User, error) {
 	for _, user := range im.Users {
@@ -52,7 +52,7 @@ func (im *InMemoryUserRepo) GetUserByID(
 }
 
 func (im *InMemoryUserRepo) GetUserByEmail(
-	ctx context.Context,
+	_ context.Context,
 	email string,
 ) (entity.User, error) {
 	for _, user := range im.Users {

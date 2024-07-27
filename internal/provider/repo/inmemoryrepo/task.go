@@ -22,7 +22,7 @@ func NewInMemoryTaskRepo() *InMemoryTaskRepo {
 }
 
 func (im *InMemoryTaskRepo) GetTaskByID(
-	ctx context.Context,
+	_ context.Context,
 	id string,
 ) (entity.Task, error) {
 	for _, task := range im.Tasks {
@@ -35,7 +35,7 @@ func (im *InMemoryTaskRepo) GetTaskByID(
 }
 
 func (im *InMemoryTaskRepo) ListTasks(
-	ctx context.Context,
+	_ context.Context,
 	opts ...repo.ListTasksOption,
 ) ([]entity.Task, error) {
 	params := repo.ListTasksParams{}
@@ -58,7 +58,7 @@ func (im *InMemoryTaskRepo) ListTasks(
 }
 
 func (im *InMemoryTaskRepo) CreateTask(
-	ctx context.Context,
+	_ context.Context,
 	params repo.CreateTaskParams,
 ) error {
 	task := entity.Task{}
@@ -76,7 +76,7 @@ func (im *InMemoryTaskRepo) CreateTask(
 }
 
 func (im *InMemoryTaskRepo) UpdateTask(
-	ctx context.Context,
+	_ context.Context,
 	params repo.UpdateTaskParams,
 ) error {
 	for i, task := range im.Tasks {
@@ -101,7 +101,7 @@ func (im *InMemoryTaskRepo) UpdateTask(
 	return nil
 }
 
-func (im *InMemoryTaskRepo) DeleteTask(ctx context.Context, id string) error {
+func (im *InMemoryTaskRepo) DeleteTask(_ context.Context, id string) error {
 	for i, task := range im.Tasks {
 		if task.ID == id {
 			im.Tasks = slices.Delete(im.Tasks, i, i+1)

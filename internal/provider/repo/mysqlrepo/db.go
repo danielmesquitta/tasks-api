@@ -3,7 +3,7 @@ package mysqlrepo
 import (
 	"database/sql"
 
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/go-sql-driver/mysql" // mysql driver
 
 	"github.com/danielmesquitta/tasks-api/internal/config"
 	"github.com/danielmesquitta/tasks-api/internal/provider/db/mysqldb"

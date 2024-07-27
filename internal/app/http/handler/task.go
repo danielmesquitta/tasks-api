@@ -33,6 +33,7 @@ func NewTaskHandler(
 // @Summary Create task
 // @Description Create new task
 // @Tags Tasks
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param request body dto.CreateTaskRequestDTO true "Request body"
@@ -71,6 +72,7 @@ func (h *TaskHandler) Create(c echo.Context) error {
 // @Summary Finish task
 // @Description Mark task as finished
 // @Tags Tasks
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param id path string true "Task ID"
@@ -102,6 +104,7 @@ func (h *TaskHandler) Finish(c echo.Context) error {
 // @Summary List tasks
 // @Description List tasks
 // @Tags Tasks
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Success 200 {object} []entity.Task

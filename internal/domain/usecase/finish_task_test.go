@@ -150,7 +150,7 @@ func TestFinishTask_Execute(t *testing.T) {
 			if tt.wantErr == nil {
 				_ = tt.fields.msgBroker.Subscribe(
 					broker.TopicTaskFinished,
-					func(message []byte) {
+					func(_ []byte) {
 						defer wg.Done()
 						sentMessages++
 					},

@@ -26,9 +26,9 @@ type ListTasksParams struct {
 
 type ListTasksOption func(*ListTasksParams)
 
-func WithAssignedToUserID(assignedToUserId string) ListTasksOption {
+func WithAssignedToUserID(assignedToUserID string) ListTasksOption {
 	return func(params *ListTasksParams) {
-		params.AssignedToUserID = assignedToUserId
+		params.AssignedToUserID = assignedToUserID
 	}
 }
 

@@ -35,7 +35,7 @@ func NewApp(
 
 			return nil
 		},
-		OnStop: func(ctx context.Context) error {
+		OnStop: func(_ context.Context) error {
 			return app.Shutdown(context.Background())
 		},
 	})

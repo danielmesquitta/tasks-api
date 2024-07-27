@@ -1,6 +1,7 @@
 package config
 
 import (
+	"cmp"
 	"os"
 
 	"github.com/danielmesquitta/tasks-api/internal/pkg/validator"
@@ -24,13 +25,14 @@ type Env struct {
 	CipherSecretKey      string      `mapstructure:"CIPHER_SECRET_KEY"     validate:"required,min=32,max=32"`
 	InitializationVector string      `mapstructure:"INITIALIZATION_VECTOR" validate:"required,min=16,max=16"`
 	JWTSecretKey         string      `mapstructure:"JWT_SECRET_KEY"        validate:"required"`
+	BasicAuthUsername    string      `mapstructure:"BASIC_AUTH_USERNAME"   validate:"required"`
+	BasicAuthPassword    string      `mapstructure:"BASIC_AUTH_PASSWORD"   validate:"required"`
 }
 
 func (e *Env) validate() error {
 	if err := e.val.Validate(e); err != nil {
 		return err
 	}
-
 	if e.Environment == "" {
 		e.Environment = DevelopmentEnv
 	}
@@ -45,10 +47,7 @@ func LoadEnv(val validator.Validator) *Env {
 		val: val,
 	}
 
-	envFilepath := os.Getenv("ENV_FILEPATH")
-	if envFilepath == "" {
-		envFilepath = ".env"
-	}
+	envFilepath := cmp.Or(os.Getenv("ENV_FILEPATH"), ".env")
 
 	viper.SetConfigFile(envFilepath)
 	viper.AutomaticEnv()

@@ -8,6 +8,11 @@ import "github.com/danielmesquitta/tasks-api/internal/app/http"
 // @contact.name Daniel Mesquita
 // @contact.email danielmesquitta123@gmail.com
 // @BasePath /api/v1
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
+// @securityDefinitions.basic BasicAuth
 func main() {
 	http.Start()
 }
