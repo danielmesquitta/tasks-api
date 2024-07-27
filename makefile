@@ -1,4 +1,4 @@
-.PHONY: default dev run clear install test docs build db_generate migrations_up migrations_down migrations_create
+.PHONY: default dev run clear install test docs build db_generate migrations_up migrations_down migrations_create lint
 
 include .env
 
@@ -28,3 +28,5 @@ migrations_down:
 	@goose -dir $(GOOSE_MIGRATION_DIR) $(GOOSE_DRIVER) "$(GOOSE_DBSTRING)" down
 migrations_create:
 	@goose create $(NAME) sql
+lint:
+	@golangci-lint run && nilaway ./...
