@@ -33,14 +33,17 @@ type GetTaskByIDParams struct {
 	UserRole entity.Role `json:"user_role,omitempty" validate:"required,min=1,max=2"`
 }
 
-func (u *GetTaskByID) Execute(params GetTaskByIDParams) (entity.Task, error) {
+func (u *GetTaskByID) Execute(
+	ctx context.Context,
+	params GetTaskByIDParams,
+) (entity.Task, error) {
 	if err := u.validator.Validate(params); err != nil {
 		validationErr := entity.ErrValidation
 		validationErr.Message = err.Error()
 		return entity.Task{}, validationErr
 	}
 
-	task, err := u.taskRepo.GetTaskByID(context.Background(), params.ID)
+	task, err := u.taskRepo.GetTaskByID(ctx, params.ID)
 	if err != nil {
 		return entity.Task{}, entity.NewErr(err)
 	}

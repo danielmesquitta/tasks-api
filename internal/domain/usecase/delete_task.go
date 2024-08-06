@@ -28,7 +28,10 @@ type DeleteTaskParams struct {
 	UserRole entity.Role `json:"role,omitempty"    validate:"required,min=1,max=2"`
 }
 
-func (d *DeleteTask) Execute(params DeleteTaskParams) error {
+func (d *DeleteTask) Execute(
+	ctx context.Context,
+	params DeleteTaskParams,
+) error {
 	if err := d.validator.Validate(params); err != nil {
 		validationErr := entity.ErrValidation
 		validationErr.Message = err.Error()
@@ -39,7 +42,7 @@ func (d *DeleteTask) Execute(params DeleteTaskParams) error {
 		return entity.ErrUserNotAllowedToDeleteTask
 	}
 
-	task, err := d.taskRepo.GetTaskByID(context.Background(), params.TaskID)
+	task, err := d.taskRepo.GetTaskByID(ctx, params.TaskID)
 	if err != nil {
 		return entity.NewErr(err)
 	}
@@ -48,7 +51,7 @@ func (d *DeleteTask) Execute(params DeleteTaskParams) error {
 		return entity.ErrTaskNotFound
 	}
 
-	if err := d.taskRepo.DeleteTask(context.Background(), task.ID); err != nil {
+	if err := d.taskRepo.DeleteTask(ctx, task.ID); err != nil {
 		return entity.NewErr(err)
 	}
 

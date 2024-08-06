@@ -43,7 +43,9 @@ func (a *AuthHandler) Login(c echo.Context) error {
 	if err := copier.Copy(&useCaseParams, requestData); err != nil {
 		return entity.NewErr(err)
 	}
+
 	accessToken, refreshToken, err := a.authenticateUseCase.Execute(
+		c.Request().Context(),
 		useCaseParams,
 	)
 	if err != nil {

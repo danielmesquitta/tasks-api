@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"testing"
 
 	"github.com/danielmesquitta/tasks-api/internal/domain/entity"
@@ -169,7 +170,7 @@ func TestCreateUser_Execute(t *testing.T) {
 				tt.fields.bcr,
 				tt.fields.userRepo,
 			)
-			err := c.Execute(tt.args.params)
+			err := c.Execute(context.Background(), tt.args.params)
 			if !testutil.IsSameErr(err, tt.wantErr) {
 				t.Errorf(
 					"CreateUser.Execute() error = %v, wantErr %v",

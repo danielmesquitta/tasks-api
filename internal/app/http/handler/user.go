@@ -42,7 +42,7 @@ func (h *UserHandler) Create(c echo.Context) error {
 		return entity.NewErr(err)
 	}
 
-	err := h.createUserUseCase.Execute(useCaseParams)
+	err := h.createUserUseCase.Execute(c.Request().Context(), useCaseParams)
 	if err != nil {
 		return entity.NewErr(err)
 	}

@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -179,7 +180,7 @@ func TestListTasks_Execute(t *testing.T) {
 				tt.fields.taskRepo,
 			)
 
-			gotTasks, err := l.Execute(tt.args.params)
+			gotTasks, err := l.Execute(context.Background(), tt.args.params)
 			if !testutil.IsSameErr(err, tt.wantErr) {
 				t.Errorf(
 					"ListTasks.Execute() error = %v, wantErr %v",

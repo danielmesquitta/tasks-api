@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"strings"
 	"testing"
 
@@ -257,7 +258,7 @@ func TestCreateTask_Execute(t *testing.T) {
 				tt.fields.taskRepo,
 				tt.fields.userRepo,
 			)
-			err := c.Execute(tt.args.params)
+			err := c.Execute(context.Background(), tt.args.params)
 			if !testutil.IsSameErr(err, tt.wantErr) {
 				t.Errorf(
 					"CreateTask.Execute() error = %v, wantErr %v",

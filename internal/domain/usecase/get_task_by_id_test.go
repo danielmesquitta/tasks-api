@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"reflect"
 	"testing"
 	"time"
@@ -213,7 +214,7 @@ func TestGetTaskByID_Execute(t *testing.T) {
 				tt.fields.symCrypto,
 				tt.fields.taskRepo,
 			)
-			got, err := u.Execute(tt.args.params)
+			got, err := u.Execute(context.Background(), tt.args.params)
 			if !testutil.IsSameErr(err, tt.wantErr) {
 				t.Errorf(
 					"GetTaskByID.Execute() error = %v, wantErr %v",

@@ -36,7 +36,10 @@ type CreateUserParams struct {
 	Role     entity.Role `json:"role,omitempty"     validate:"required,min=1,max=2"`
 }
 
-func (c *CreateUser) Execute(params CreateUserParams) error {
+func (c *CreateUser) Execute(
+	ctx context.Context,
+	params CreateUserParams,
+) error {
 	if err := c.val.Validate(params); err != nil {
 		validationErr := entity.ErrValidation
 		validationErr.Message = err.Error()
@@ -46,7 +49,7 @@ func (c *CreateUser) Execute(params CreateUserParams) error {
 	params.Email = strings.Trim(strings.ToLower(params.Email), " ")
 
 	userWithSameEmail, err := c.userRepo.GetUserByEmail(
-		context.Background(),
+		ctx,
 		params.Email,
 	)
 	if err != nil {
@@ -68,7 +71,7 @@ func (c *CreateUser) Execute(params CreateUserParams) error {
 
 	repoParams.Password = hashedPassword
 
-	if err = c.userRepo.CreateUser(context.Background(), repoParams); err != nil {
+	if err = c.userRepo.CreateUser(ctx, repoParams); err != nil {
 		return entity.NewErr(err)
 	}
 

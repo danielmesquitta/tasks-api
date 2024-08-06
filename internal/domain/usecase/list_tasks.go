@@ -33,6 +33,7 @@ type ListTasksParams struct {
 }
 
 func (l *ListTasks) Execute(
+	ctx context.Context,
 	params ListTasksParams,
 ) ([]entity.Task, error) {
 	if err := l.validator.Validate(params); err != nil {
@@ -45,11 +46,11 @@ func (l *ListTasks) Execute(
 	var err error
 	switch params.UserRole {
 	case entity.RoleManager:
-		results, err = l.taskRepo.ListTasks(context.Background())
+		results, err = l.taskRepo.ListTasks(ctx)
 
 	case entity.RoleTechnician:
 		results, err = l.taskRepo.ListTasks(
-			context.Background(),
+			ctx,
 			repo.WithAssignedToUserID(params.UserID),
 		)
 

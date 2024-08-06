@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -164,7 +165,10 @@ func TestAuthenticate_Execute(t *testing.T) {
 				tt.fields.userRepo,
 			)
 
-			gotAccessToken, gotRefreshToken, err := a.Execute(tt.args.params)
+			gotAccessToken, gotRefreshToken, err := a.Execute(
+				context.Background(),
+				tt.args.params,
+			)
 			if !testutil.IsSameErr(err, tt.wantErr) {
 				t.Errorf(
 					"Authenticate.Execute() error = %v, wantErr %v",

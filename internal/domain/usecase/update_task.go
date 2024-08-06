@@ -39,14 +39,17 @@ type UpdateTaskParams struct {
 	AssignedToUserID *string     `json:"assigned_to_user_id,omitempty" validate:"omitempty,uuid"`
 }
 
-func (u *UpdateTask) Execute(params UpdateTaskParams) error {
+func (u *UpdateTask) Execute(
+	ctx context.Context,
+	params UpdateTaskParams,
+) error {
 	if err := u.validator.Validate(params); err != nil {
 		validationErr := entity.ErrValidation
 		validationErr.Message = err.Error()
 		return validationErr
 	}
 
-	task, err := u.taskRepo.GetTaskByID(context.Background(), params.ID)
+	task, err := u.taskRepo.GetTaskByID(ctx, params.ID)
 	if err != nil {
 		return entity.NewErr(err)
 	}
@@ -73,7 +76,7 @@ func (u *UpdateTask) Execute(params UpdateTaskParams) error {
 
 		var assignedUser entity.User
 		assignedUser, err = u.userRepo.GetUserByID(
-			context.Background(),
+			ctx,
 			*params.AssignedToUserID,
 		)
 		if err != nil {
@@ -99,7 +102,7 @@ func (u *UpdateTask) Execute(params UpdateTaskParams) error {
 
 	repoParams.Summary = encryptedSummary
 
-	if err := u.taskRepo.UpdateTask(context.Background(), repoParams); err != nil {
+	if err := u.taskRepo.UpdateTask(ctx, repoParams); err != nil {
 		return entity.NewErr(err)
 	}
 

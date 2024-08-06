@@ -36,7 +36,10 @@ type FinishTaskParams struct {
 	UserRole entity.Role `json:"role,omitempty"    validate:"required,min=1,max=2"`
 }
 
-func (f *FinishTask) Execute(params FinishTaskParams) error {
+func (f *FinishTask) Execute(
+	ctx context.Context,
+	params FinishTaskParams,
+) error {
 	if params.UserRole != entity.RoleTechnician {
 		return entity.ErrUserNotAllowedToFinishTask
 	}
@@ -47,7 +50,7 @@ func (f *FinishTask) Execute(params FinishTaskParams) error {
 		return validationErr
 	}
 
-	task, err := f.taskRepo.GetTaskByID(context.Background(), params.TaskID)
+	task, err := f.taskRepo.GetTaskByID(ctx, params.TaskID)
 	if err != nil {
 		return entity.NewErr(err)
 	}
@@ -64,7 +67,7 @@ func (f *FinishTask) Execute(params FinishTaskParams) error {
 		return entity.NewErr(err)
 	}
 
-	if err = f.taskRepo.UpdateTask(context.Background(), repoParams); err != nil {
+	if err = f.taskRepo.UpdateTask(ctx, repoParams); err != nil {
 		return entity.NewErr(err)
 	}
 

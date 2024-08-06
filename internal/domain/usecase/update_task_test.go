@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"strings"
 	"testing"
 	"time"
@@ -336,7 +337,7 @@ func TestUpdateTask_Execute(t *testing.T) {
 				tt.fields.taskRepo,
 				tt.fields.userRepo,
 			)
-			err := u.Execute(tt.args.params)
+			err := u.Execute(context.Background(), tt.args.params)
 			if !testutil.IsSameErr(
 				err,
 				tt.wantErr,

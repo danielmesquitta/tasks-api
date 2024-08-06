@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"sync"
 	"testing"
 	"time"
@@ -157,7 +158,7 @@ func TestFinishTask_Execute(t *testing.T) {
 				)
 			}
 
-			err := f.Execute(tt.args.params)
+			err := f.Execute(context.Background(), tt.args.params)
 			if !testutil.IsSameErr(err, tt.wantErr) {
 				t.Errorf(
 					"FinishTask.Execute() error = %v, wantErr %v",

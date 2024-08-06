@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"context"
-	"sync"
+	"errors"
 
 	"github.com/danielmesquitta/tasks-api/internal/domain/entity"
 	"github.com/danielmesquitta/tasks-api/internal/pkg/symcrypt"
@@ -39,7 +39,10 @@ type CreateTaskParams struct {
 	AssignedToUserID string      `json:"assigned_to_user_id,omitempty" validate:"omitempty,uuid"`
 }
 
-func (c *CreateTask) Execute(params CreateTaskParams) error {
+func (c *CreateTask) Execute(
+	ctx context.Context,
+	params CreateTaskParams,
+) error {
 	if params.UserRole != entity.RoleManager {
 		return entity.ErrUserNotAllowedToCreateTask
 	}
@@ -50,35 +53,48 @@ func (c *CreateTask) Execute(params CreateTaskParams) error {
 		return validationErr
 	}
 
-	wg := sync.WaitGroup{}
-	wg.Add(2)
-
 	var createdByUser, assignedToUser entity.User
-	var err error
+	errCh := make(chan error)
+
 	go func() {
-		defer wg.Done()
+		var err error
+		defer func() {
+			errCh <- err
+		}()
 		createdByUser, err = c.userRepo.GetUserByID(
-			context.Background(),
+			ctx,
 			params.CreatedByUserID,
 		)
 	}()
 
 	assignedUserIsDefined := params.AssignedToUserID != ""
 	go func() {
-		defer wg.Done()
+		var err error
+		defer func() {
+			errCh <- err
+		}()
 		if !assignedUserIsDefined {
 			return
 		}
 		assignedToUser, err = c.userRepo.GetUserByID(
-			context.Background(),
+			ctx,
 			params.AssignedToUserID,
 		)
 	}()
 
-	wg.Wait()
+	var errs []error
+	routinesCount := 2
+	for i := 0; i < routinesCount; i++ {
+		err := <-errCh
+		if err != nil {
+			errs = append(errs, err)
+		}
+	}
 
-	if err != nil {
-		return entity.NewErr(err)
+	close(errCh)
+
+	if len(errs) > 0 {
+		return entity.NewErr(errors.Join(errs...))
 	}
 
 	if createdByUser.ID == "" {
@@ -113,7 +129,7 @@ func (c *CreateTask) Execute(params CreateTaskParams) error {
 		return entity.NewErr(err)
 	}
 
-	if err := c.taskRepo.CreateTask(context.Background(), repoParams); err != nil {
+	if err := c.taskRepo.CreateTask(ctx, repoParams); err != nil {
 		return entity.NewErr(err)
 	}
 

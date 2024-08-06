@@ -39,6 +39,7 @@ type AuthenticateParams struct {
 }
 
 func (a *Authenticate) Execute(
+	ctx context.Context,
 	params AuthenticateParams,
 ) (accessToken, refreshToken string, err error) {
 	if err = a.val.Validate(params); err != nil {
@@ -47,7 +48,7 @@ func (a *Authenticate) Execute(
 		return "", "", validationErr
 	}
 
-	user, err := a.userRepo.GetUserByEmail(context.Background(), params.Email)
+	user, err := a.userRepo.GetUserByEmail(ctx, params.Email)
 	if err != nil {
 		return "", "", entity.NewErr(err)
 	}

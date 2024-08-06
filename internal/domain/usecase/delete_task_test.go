@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -141,7 +142,7 @@ func TestDeleteTask_Execute(t *testing.T) {
 				tt.fields.validator,
 				tt.fields.taskRepo,
 			)
-			if err := d.Execute(tt.args.params); !testutil.IsSameErr(
+			if err := d.Execute(context.Background(), tt.args.params); !testutil.IsSameErr(
 				err,
 				tt.wantErr,
 			) {

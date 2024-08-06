@@ -61,7 +61,7 @@ func (h *TaskHandler) Create(c echo.Context) error {
 	useCaseParams.UserRole = claims.Role
 	useCaseParams.CreatedByUserID = claims.Issuer
 
-	err := h.createTaskUseCase.Execute(useCaseParams)
+	err := h.createTaskUseCase.Execute(c.Request().Context(), useCaseParams)
 	if err != nil {
 		return entity.NewErr(err)
 	}
@@ -93,7 +93,7 @@ func (h *TaskHandler) Finish(c echo.Context) error {
 		UserRole: claims.Role,
 	}
 
-	err := h.finishTaskUseCase.Execute(useCaseParams)
+	err := h.finishTaskUseCase.Execute(c.Request().Context(), useCaseParams)
 	if err != nil {
 		return entity.NewErr(err)
 	}
@@ -119,6 +119,7 @@ func (h TaskHandler) List(c echo.Context) error {
 	}
 
 	tasks, err := h.listTasksUseCase.Execute(
+		c.Request().Context(),
 		usecase.ListTasksParams{
 			UserRole: claims.Role,
 			UserID:   claims.Issuer,
