@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/danielmesquitta/tasks-api/internal/app/http/dto"
+	"github.com/danielmesquitta/tasks-api/internal/app/restapi/dto"
 	"github.com/danielmesquitta/tasks-api/internal/domain/entity"
 	"github.com/danielmesquitta/tasks-api/internal/domain/usecase"
 	"github.com/jinzhu/copier"

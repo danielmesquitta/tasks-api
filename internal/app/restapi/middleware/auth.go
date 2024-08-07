@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/danielmesquitta/tasks-api/internal/app/http/dto"
+	"github.com/danielmesquitta/tasks-api/internal/app/restapi/dto"
 	"github.com/labstack/echo/v4"
 )
 

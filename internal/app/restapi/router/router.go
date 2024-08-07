@@ -6,8 +6,8 @@ import (
 
 	_ "github.com/danielmesquitta/tasks-api/docs" // swagger docs
 
-	"github.com/danielmesquitta/tasks-api/internal/app/http/handler"
-	mid "github.com/danielmesquitta/tasks-api/internal/app/http/middleware"
+	"github.com/danielmesquitta/tasks-api/internal/app/restapi/handler"
+	mid "github.com/danielmesquitta/tasks-api/internal/app/restapi/middleware"
 	"github.com/danielmesquitta/tasks-api/internal/config"
 )
 

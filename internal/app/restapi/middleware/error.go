@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/danielmesquitta/tasks-api/internal/app/http/dto"
+	"github.com/danielmesquitta/tasks-api/internal/app/restapi/dto"
 	"github.com/danielmesquitta/tasks-api/internal/domain/entity"
 	"github.com/labstack/echo/v4"
 )

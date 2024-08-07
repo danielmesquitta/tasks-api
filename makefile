@@ -4,10 +4,12 @@ include .env
 
 default: dev
 
-dev:
-	@air
+rpc_dev:
+	@air -c .rpc.air.toml
+rest_dev:
+	@air -c .rest.air.toml
 run:
-	@go run ./cmd/server
+	@go run ./cmd/restapi
 clear:
 	@rm ./tmp/main
 install:
@@ -17,11 +19,13 @@ test:
 coverage:
 	@ENV_FILEPATH=$(ENV_FILEPATH) go test ./internal/domain/usecase -coverprofile ./tmp/test_coverage.out && go tool cover -html=tmp/test_coverage.out
 docs:
-	@swag init -g ./cmd/server/main.go -o ./docs
+	@swag init -g ./cmd/restapi/main.go -o ./docs
 build:
-	@GOOS=linux CGO_ENABLED=0 go build -ldflags="-w -s" -o ./tmp/server ./cmd/server
+	@GOOS=linux CGO_ENABLED=0 go build -ldflags="-w -s" -o ./tmp/restapi ./cmd/restapi
 db_generate:
 	@sqlc generate
+grpc_generate:
+	@protoc --go_out=. --go-grpc_out=. service.proto
 migrations_up:
 	@goose -dir $(GOOSE_MIGRATION_DIR) $(GOOSE_DRIVER) "$(GOOSE_DBSTRING)" up
 migrations_down:

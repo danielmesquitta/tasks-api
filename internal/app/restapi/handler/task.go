@@ -6,7 +6,7 @@ import (
 	"github.com/jinzhu/copier"
 	"github.com/labstack/echo/v4"
 
-	"github.com/danielmesquitta/tasks-api/internal/app/http/dto"
+	"github.com/danielmesquitta/tasks-api/internal/app/restapi/dto"
 	"github.com/danielmesquitta/tasks-api/internal/domain/entity"
 	"github.com/danielmesquitta/tasks-api/internal/domain/usecase"
 	"github.com/danielmesquitta/tasks-api/internal/pkg/jwtutil"

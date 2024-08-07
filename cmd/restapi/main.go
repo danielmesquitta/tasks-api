@@ -1,6 +1,6 @@
 package main
 
-import "github.com/danielmesquitta/tasks-api/internal/app/http"
+import "github.com/danielmesquitta/tasks-api/internal/app/restapi"
 
 // @title Tasks API
 // @version 1.0
@@ -14,5 +14,5 @@ import "github.com/danielmesquitta/tasks-api/internal/app/http"
 // @description Type "Bearer" followed by a space and JWT token.
 // @securityDefinitions.basic BasicAuth
 func main() {
-	http.Start()
+	restapi.Start()
 }

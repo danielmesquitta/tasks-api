@@ -1,11 +1,11 @@
-package http
+package restapi
 
 import (
 	"go.uber.org/fx"
 
-	"github.com/danielmesquitta/tasks-api/internal/app/http/handler"
-	"github.com/danielmesquitta/tasks-api/internal/app/http/middleware"
-	"github.com/danielmesquitta/tasks-api/internal/app/http/router"
+	"github.com/danielmesquitta/tasks-api/internal/app/restapi/handler"
+	"github.com/danielmesquitta/tasks-api/internal/app/restapi/middleware"
+	"github.com/danielmesquitta/tasks-api/internal/app/restapi/router"
 	"github.com/danielmesquitta/tasks-api/internal/config"
 	"github.com/danielmesquitta/tasks-api/internal/domain/usecase"
 	"github.com/danielmesquitta/tasks-api/internal/pkg/hasher"
