@@ -1,6 +1,7 @@
 syntax = "proto3";
 package tasksapi;
 option go_package = "internal/app/rpc/pb";
+
 import "google/protobuf/empty.proto";
 
 enum UserRole {
@@ -18,8 +19,4 @@ message CreateUserRequest {
 
 service UserService {
   rpc CreateUser(CreateUserRequest) returns (google.protobuf.Empty);
-}
-
-service HealthCheckService {
-  rpc Check(google.protobuf.Empty) returns (google.protobuf.Empty);
 }

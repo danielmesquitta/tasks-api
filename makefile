@@ -25,7 +25,7 @@ build:
 db_generate:
 	@sqlc generate
 grpc_generate:
-	@protoc --go_out=. --go-grpc_out=. service.proto
+	@protoc --proto_path=proto proto/*.proto  --go_out=. --go-grpc_out=.
 migrations_up:
 	@goose -dir $(GOOSE_MIGRATION_DIR) $(GOOSE_DRIVER) "$(GOOSE_DBSTRING)" up
 migrations_down:

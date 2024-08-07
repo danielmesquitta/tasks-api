@@ -1,0 +1,9 @@
+syntax = "proto3";
+package tasksapi;
+option go_package = "internal/app/rpc/pb";
+
+import "google/protobuf/empty.proto";
+
+service HealthCheckService {
+  rpc Check(google.protobuf.Empty) returns (google.protobuf.Empty);
+}
