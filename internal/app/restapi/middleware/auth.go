@@ -33,7 +33,7 @@ func (m *Middleware) EnsureAuthenticated(
 		accessToken := parts[1]
 
 		// Parse and validate the token
-		claims, err := m.jwt.ParseAccessToken(accessToken)
+		claims, err := m.jwt.ValidateAccessToken(accessToken)
 		if err != nil {
 			return c.JSON(
 				http.StatusUnauthorized,

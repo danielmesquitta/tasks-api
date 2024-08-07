@@ -4,6 +4,7 @@ import (
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
 
+	"github.com/danielmesquitta/tasks-api/internal/app/rpc/interceptor"
 	"github.com/danielmesquitta/tasks-api/internal/app/rpc/pb"
 	"github.com/danielmesquitta/tasks-api/internal/app/rpc/service"
 	"github.com/danielmesquitta/tasks-api/internal/config"
@@ -63,6 +64,9 @@ func Start() {
 		usecase.NewCreateUser,
 		usecase.NewCreateTask,
 		usecase.NewFinishTask,
+
+		// Interceptors
+		interceptor.NewInterceptor,
 
 		// Services
 		fx.Annotate(

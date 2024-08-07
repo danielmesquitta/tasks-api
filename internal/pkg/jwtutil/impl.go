@@ -1,6 +1,8 @@
 package jwtutil
 
 import (
+	"time"
+
 	"github.com/danielmesquitta/tasks-api/internal/config"
 	"github.com/danielmesquitta/tasks-api/internal/domain/entity"
 	"github.com/golang-jwt/jwt/v5"
@@ -30,7 +32,7 @@ func (j *JWT) NewRefreshToken(claims jwt.RegisteredClaims) (string, error) {
 	return refreshToken.SignedString(j.secretKey)
 }
 
-func (j *JWT) ParseAccessToken(accessToken string) (*UserClaims, error) {
+func (j *JWT) ValidateAccessToken(accessToken string) (*UserClaims, error) {
 	parsedAccessToken, err := jwt.ParseWithClaims(
 		accessToken,
 		&UserClaims{},
@@ -47,10 +49,14 @@ func (j *JWT) ParseAccessToken(accessToken string) (*UserClaims, error) {
 		return nil, entity.NewErr("invalid claims")
 	}
 
+	if j.isExpired(&userClaims.RegisteredClaims) {
+		return nil, entity.NewErr("token is expired")
+	}
+
 	return userClaims, nil
 }
 
-func (j *JWT) ParseRefreshToken(
+func (j *JWT) ValidateRefreshToken(
 	refreshToken string,
 ) (*jwt.RegisteredClaims, error) {
 	parsedRefreshToken, err := jwt.ParseWithClaims(
@@ -69,5 +75,13 @@ func (j *JWT) ParseRefreshToken(
 		return nil, entity.NewErr("invalid claims")
 	}
 
+	if j.isExpired(claims) {
+		return nil, entity.NewErr("token is expired")
+	}
+
 	return claims, nil
+}
+
+func (j *JWT) isExpired(claims *jwt.RegisteredClaims) bool {
+	return claims.ExpiresAt.After(time.Now())
 }

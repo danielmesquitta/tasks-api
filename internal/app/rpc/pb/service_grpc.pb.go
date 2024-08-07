@@ -20,7 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	UserService_CreateUser_FullMethodName = "/pb.UserService/CreateUser"
+	UserService_CreateUser_FullMethodName = "/tasksapi.UserService/CreateUser"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -109,7 +109,7 @@ func _UserService_CreateUser_Handler(srv interface{}, ctx context.Context, dec f
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var UserService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "pb.UserService",
+	ServiceName: "tasksapi.UserService",
 	HandlerType: (*UserServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -122,7 +122,7 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	HealthCheckService_Check_FullMethodName = "/pb.HealthCheckService/Check"
+	HealthCheckService_Check_FullMethodName = "/tasksapi.HealthCheckService/Check"
 )
 
 // HealthCheckServiceClient is the client API for HealthCheckService service.
@@ -211,7 +211,7 @@ func _HealthCheckService_Check_Handler(srv interface{}, ctx context.Context, dec
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var HealthCheckService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "pb.HealthCheckService",
+	ServiceName: "tasksapi.HealthCheckService",
 	HandlerType: (*HealthCheckServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

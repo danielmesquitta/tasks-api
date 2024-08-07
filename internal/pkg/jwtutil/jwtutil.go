@@ -10,8 +10,8 @@ type JWTManager interface {
 	NewRefreshToken(
 		claims jwt.RegisteredClaims,
 	) (refreshToken string, err error)
-	ParseAccessToken(accessToken string) (*UserClaims, error)
-	ParseRefreshToken(refreshToken string) (*jwt.RegisteredClaims, error)
+	ValidateAccessToken(accessToken string) (*UserClaims, error)
+	ValidateRefreshToken(refreshToken string) (*jwt.RegisteredClaims, error)
 }
 
 type UserClaims struct {

@@ -9,17 +9,25 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
+	"github.com/danielmesquitta/tasks-api/internal/app/rpc/interceptor"
 	"github.com/danielmesquitta/tasks-api/internal/app/rpc/pb"
 	"github.com/danielmesquitta/tasks-api/internal/config"
+	"github.com/danielmesquitta/tasks-api/internal/domain/entity"
 )
 
 func NewServer(
 	lc fx.Lifecycle,
 	env *config.Env,
+	intercept *interceptor.Interceptor,
 	userService pb.UserServiceServer,
 	healthService pb.HealthCheckServiceServer,
 ) *grpc.Server {
-	server := grpc.NewServer()
+	intercept.AllowedRolesByMethod = map[string][]entity.Role{}
+
+	server := grpc.NewServer(
+		grpc.UnaryInterceptor(intercept.UnaryEnsureJWTAuthentication),
+		grpc.StreamInterceptor(intercept.StreamEnsureJWTAuthentication),
+	)
 
 	pb.RegisterUserServiceServer(server, userService)
 	pb.RegisterHealthCheckServiceServer(server, healthService)

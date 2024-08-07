@@ -1,8 +1,7 @@
 syntax = "proto3";
-import "google/protobuf/empty.proto";
-package pb;
+package tasksapi;
 option go_package = "internal/app/rpc/pb";
-
+import "google/protobuf/empty.proto";
 
 enum UserRole {
   _ = 0;
