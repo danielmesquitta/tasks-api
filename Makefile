@@ -1,17 +1,15 @@
-.PHONY: default dev run clear install test docs build db_generate migrations_up migrations_down migrations_create lint
+.PHONY: default rest_dev rpc_dev install test coverage docs build db_gen grpc_gen migrations_up migrations_down migrations_create lint
 
 include .env
 
-default: dev
+default: rest_dev
 
-rpc_dev:
-	@air -c .rpc.air.toml
 rest_dev:
 	@air -c .rest.air.toml
-run:
-	@go run ./cmd/restapi
+rpc_dev:
+	@air -c .rpc.air.toml
 clear:
-	@rm ./tmp/main
+	@find ./tmp -mindepth 1 ! -name '.gitkeep' -delete
 install:
 	@go mod download && go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest && go install github.com/swaggo/swag/cmd/swag@latest && go install github.com/pressly/goose/v3/cmd/goose@latest && go install github.com/air-verse/air@latest
 test:
@@ -22,9 +20,9 @@ docs:
 	@swag init -g ./cmd/restapi/main.go -o ./docs
 build:
 	@GOOS=linux CGO_ENABLED=0 go build -ldflags="-w -s" -o ./tmp/restapi ./cmd/restapi
-db_generate:
+db_gen:
 	@sqlc generate
-grpc_generate:
+grpc_gen:
 	@protoc --proto_path=proto proto/*.proto  --go_out=. --go-grpc_out=.
 migrations_up:
 	@goose -dir $(GOOSE_MIGRATION_DIR) $(GOOSE_DRIVER) "$(GOOSE_DBSTRING)" up

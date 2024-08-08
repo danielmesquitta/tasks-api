@@ -5,7 +5,7 @@ option go_package = "internal/app/rpc/pb";
 import "google/protobuf/empty.proto";
 
 enum UserRole {
-  _ = 0;
+  UNKNOWN = 0;
   MANAGER = 1;
   TECHNICIAN = 2;
 }

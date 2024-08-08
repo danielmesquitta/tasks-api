@@ -1,0 +1,30 @@
+syntax = "proto3";
+package tasksapi;
+option go_package = "internal/app/rpc/pb";
+
+import "google/protobuf/empty.proto";
+
+message Task {
+  string id = 1;
+  string summary = 2;
+  string created_by_user_id = 3;
+  string assigned_to_user_id = 4;
+  string finished_at = 5;
+  string updated_at = 6;
+}
+
+message ListTasksResponse { repeated Task data = 1; }
+
+message CreateTaskRequest {
+  string summary = 1;
+  string assigned_to_user_id = 2;
+}
+
+message MarkTaskAsFinishedRequest { string id = 1; }
+
+service TaskService {
+  rpc ListTasks(google.protobuf.Empty) returns (ListTasksResponse);
+  rpc CreateTask(CreateTaskRequest) returns (google.protobuf.Empty);
+  rpc MarkTaskAsFinished(MarkTaskAsFinishedRequest)
+      returns (google.protobuf.Empty);
+}
