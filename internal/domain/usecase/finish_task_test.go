@@ -143,6 +143,7 @@ func TestFinishTask_Execute(t *testing.T) {
 				tt.fields.validator,
 				tt.fields.msgBroker,
 				tt.fields.taskRepo,
+				nil,
 			)
 
 			sentMessages := 0

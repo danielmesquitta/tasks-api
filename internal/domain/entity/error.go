@@ -116,3 +116,5 @@ var (
 		ErrTypeForbidden,
 	)
 )
+
+var _ error = (*Err)(nil)

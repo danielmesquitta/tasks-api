@@ -1,4 +1,4 @@
-.PHONY: default rest_dev rpc_dev install test coverage docs build db_gen grpc_gen migrations_up migrations_down migrations_create lint
+.PHONY: default rest_dev rpc_dev clear gen install test coverage docs build db_gen grpc_gen migrations_up migrations_down migrations_create lint update
 
 include .env
 
@@ -10,6 +10,8 @@ rpc_dev:
 	@air -c .rpc.air.toml
 clear:
 	@find ./tmp -mindepth 1 ! -name '.gitkeep' -delete
+gen:
+	@go generate ./...
 install:
 	@go mod download && go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest && go install github.com/swaggo/swag/cmd/swag@latest && go install github.com/pressly/goose/v3/cmd/goose@latest && go install github.com/air-verse/air@latest
 test:
@@ -32,3 +34,5 @@ migrations_create:
 	@goose create $(NAME) sql
 lint:
 	@golangci-lint run && nilaway ./...
+update:
+	@go mod tidy && go get -u ./...

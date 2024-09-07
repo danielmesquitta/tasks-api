@@ -11,12 +11,12 @@ import (
 )
 
 type MySQLTaskRepo struct {
-	db *mysqldb.Queries
+	queries *Queries
 }
 
-func NewMySQLTaskRepo(db *mysqldb.Queries) *MySQLTaskRepo {
+func NewMySQLTaskRepo(queries *Queries) *MySQLTaskRepo {
 	return &MySQLTaskRepo{
-		db: db,
+		queries: queries,
 	}
 }
 
@@ -24,7 +24,7 @@ func (m MySQLTaskRepo) GetTaskByID(
 	ctx context.Context,
 	id string,
 ) (entity.Task, error) {
-	result, err := m.db.GetTaskByID(ctx, id)
+	result, err := m.queries.GetTaskByID(ctx, id)
 
 	if err == sql.ErrNoRows {
 		return entity.Task{}, nil
@@ -53,9 +53,9 @@ func (m MySQLTaskRepo) ListTasks(
 
 	var results []mysqldb.Task
 	if params.AssignedToUserID == "" {
-		results, err = m.db.ListTasks(ctx)
+		results, err = m.queries.ListTasks(ctx)
 	} else {
-		results, err = m.db.ListTasksWithFilters(ctx, sql.NullString{
+		results, err = m.queries.ListTasksWithFilters(ctx, sql.NullString{
 			String: params.AssignedToUserID,
 			Valid:  true,
 		})
@@ -85,7 +85,8 @@ func (m MySQLTaskRepo) CreateTask(
 		return entity.NewErr(err)
 	}
 
-	if err := m.db.CreateTask(ctx, args); err != nil {
+	db := m.queries.getDBorTX(ctx)
+	if err := db.CreateTask(ctx, args); err != nil {
 		return entity.NewErr(err)
 	}
 
@@ -101,7 +102,8 @@ func (m MySQLTaskRepo) UpdateTask(
 		return entity.NewErr(err)
 	}
 
-	if err := m.db.UpdateTask(ctx, args); err != nil {
+	db := m.queries.getDBorTX(ctx)
+	if err := db.UpdateTask(ctx, args); err != nil {
 		return entity.NewErr(err)
 	}
 
@@ -109,9 +111,12 @@ func (m MySQLTaskRepo) UpdateTask(
 }
 
 func (m MySQLTaskRepo) DeleteTask(ctx context.Context, id string) error {
-	if err := m.db.DeleteTask(ctx, id); err != nil {
+	db := m.queries.getDBorTX(ctx)
+	if err := db.DeleteTask(ctx, id); err != nil {
 		return entity.NewErr(err)
 	}
 
 	return nil
 }
+
+var _ repo.TaskRepo = (*MySQLTaskRepo)(nil)

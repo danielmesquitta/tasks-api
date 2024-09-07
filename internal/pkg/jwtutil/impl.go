@@ -83,5 +83,5 @@ func (j *JWT) ValidateRefreshToken(
 }
 
 func (j *JWT) isExpired(claims *jwt.RegisteredClaims) bool {
-	return claims.ExpiresAt.After(time.Now())
+	return claims.ExpiresAt.Before(time.Now())
 }

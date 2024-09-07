@@ -44,3 +44,5 @@ func (cmb *CLIMessageBroker) Subscribe(
 	cmb.subscribers[topic] = append(cmb.subscribers[topic], handler)
 	return nil
 }
+
+var _ broker.MessageBroker = (*CLIMessageBroker)(nil)

@@ -63,3 +63,5 @@ func (im *InMemoryUserRepo) GetUserByEmail(
 
 	return entity.User{}, nil
 }
+
+var _ repo.UserRepo = (*InMemoryUserRepo)(nil)

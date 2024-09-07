@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/danielmesquitta/tasks-api/internal/domain/entity"
+	"github.com/danielmesquitta/tasks-api/internal/pkg/transactioner"
 	"github.com/danielmesquitta/tasks-api/internal/pkg/validator"
 	"github.com/danielmesquitta/tasks-api/internal/provider/broker"
 	"github.com/danielmesquitta/tasks-api/internal/provider/repo"
@@ -16,17 +17,20 @@ type FinishTask struct {
 	validator validator.Validator
 	msgBroker broker.MessageBroker
 	taskRepo  repo.TaskRepo
+	tx        transactioner.Transactioner
 }
 
 func NewFinishTask(
 	validator validator.Validator,
 	msgBroker broker.MessageBroker,
 	taskRepo repo.TaskRepo,
+	tx transactioner.Transactioner,
 ) *FinishTask {
 	return &FinishTask{
 		validator: validator,
 		msgBroker: msgBroker,
 		taskRepo:  taskRepo,
+		tx:        tx,
 	}
 }
 
@@ -67,18 +71,26 @@ func (f *FinishTask) Execute(
 		return entity.NewErr(err)
 	}
 
-	if err = f.taskRepo.UpdateTask(ctx, repoParams); err != nil {
-		return entity.NewErr(err)
-	}
+	err = f.tx.Do(ctx, func(ctx context.Context) error {
+		if err = f.taskRepo.UpdateTask(ctx, repoParams); err != nil {
+			return entity.NewErr(err)
+		}
 
-	task.UpdatedAt = time.Now()
+		task.UpdatedAt = time.Now()
 
-	taskBytes, err := json.Marshal(task)
+		taskBytes, err := json.Marshal(task)
+		if err != nil {
+			return entity.NewErr(err)
+		}
+
+		if err := f.msgBroker.Publish(broker.TopicTaskFinished, taskBytes); err != nil {
+			return entity.NewErr(err)
+		}
+
+		return nil
+	})
+
 	if err != nil {
-		return entity.NewErr(err)
-	}
-
-	if err := f.msgBroker.Publish(broker.TopicTaskFinished, taskBytes); err != nil {
 		return entity.NewErr(err)
 	}
 

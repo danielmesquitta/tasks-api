@@ -55,6 +55,7 @@ func (c *CreateTask) Execute(
 
 	var createdByUser, assignedToUser entity.User
 	errCh := make(chan error)
+	jobsCount := 2
 
 	go func() {
 		var err error
@@ -82,19 +83,18 @@ func (c *CreateTask) Execute(
 		)
 	}()
 
-	var errs []error
-	routinesCount := 2
-	for i := 0; i < routinesCount; i++ {
+	var errs error
+	for i := 0; i < jobsCount; i++ {
 		err := <-errCh
 		if err != nil {
-			errs = append(errs, err)
+			errs = errors.Join(errs, err)
 		}
 	}
 
 	close(errCh)
 
-	if len(errs) > 0 {
-		return entity.NewErr(errors.Join(errs...))
+	if errs != nil {
+		return entity.NewErr(errs)
 	}
 
 	if createdByUser.ID == "" {

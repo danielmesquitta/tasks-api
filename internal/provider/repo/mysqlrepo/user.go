@@ -11,12 +11,12 @@ import (
 )
 
 type MySQLUserRepo struct {
-	db *mysqldb.Queries
+	queries *Queries
 }
 
-func NewMySQLUserRepo(db *mysqldb.Queries) *MySQLUserRepo {
+func NewMySQLUserRepo(queries *Queries) *MySQLUserRepo {
 	return &MySQLUserRepo{
-		db: db,
+		queries: queries,
 	}
 }
 
@@ -24,7 +24,7 @@ func (m MySQLUserRepo) GetUserByID(
 	ctx context.Context,
 	id string,
 ) (entity.User, error) {
-	result, err := m.db.GetUserByID(ctx, id)
+	result, err := m.queries.GetUserByID(ctx, id)
 
 	if err == sql.ErrNoRows {
 		return entity.User{}, nil
@@ -46,7 +46,7 @@ func (m MySQLUserRepo) GetUserByEmail(
 	ctx context.Context,
 	email string,
 ) (entity.User, error) {
-	result, err := m.db.GetUserByEmail(ctx, email)
+	result, err := m.queries.GetUserByEmail(ctx, email)
 
 	if err == sql.ErrNoRows {
 		return entity.User{}, nil
@@ -73,9 +73,12 @@ func (m MySQLUserRepo) CreateUser(
 		return entity.NewErr(err)
 	}
 
-	if err := m.db.CreateUser(ctx, args); err != nil {
+	db := m.queries.getDBorTX(ctx)
+	if err := db.CreateUser(ctx, args); err != nil {
 		return entity.NewErr(err)
 	}
 
 	return nil
 }
+
+var _ repo.UserRepo = (*MySQLUserRepo)(nil)

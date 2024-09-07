@@ -2,11 +2,11 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug",
+      "name": "Debug REST API",
       "type": "go",
       "request": "launch",
       "mode": "auto",
-      "program": "${workspaceFolder}/cmd/server",
+      "program": "${workspaceFolder}/cmd/restapi",
       "cwd": "${workspaceFolder}",
       "envFile": "${workspaceFolder}/.env"
     },

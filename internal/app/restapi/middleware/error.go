@@ -36,16 +36,11 @@ func (m *Middleware) ErrorHandler(
 
 				slog.Error(
 					appErr.Error(),
-					"url",
-					req.URL.Path,
-					"body",
-					requestData,
-					"query",
-					c.QueryParams(),
-					"params",
-					c.ParamValues(),
-					"stacktrace",
-					appErr.StackTrace,
+					slog.String("url", req.URL.Path),
+					"body", requestData,
+					"query", c.QueryParams(),
+					"params", c.ParamValues(),
+					slog.String("stacktrace", appErr.StackTrace),
 				)
 
 				err = c.JSON(

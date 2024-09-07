@@ -11,6 +11,7 @@ import (
 	"github.com/danielmesquitta/tasks-api/internal/pkg/hasher"
 	"github.com/danielmesquitta/tasks-api/internal/pkg/jwtutil"
 	"github.com/danielmesquitta/tasks-api/internal/pkg/symcrypt"
+	"github.com/danielmesquitta/tasks-api/internal/pkg/transactioner"
 	"github.com/danielmesquitta/tasks-api/internal/pkg/validator"
 	"github.com/danielmesquitta/tasks-api/internal/provider/broker"
 	"github.com/danielmesquitta/tasks-api/internal/provider/broker/clibroker"
@@ -41,9 +42,14 @@ func Start() {
 			jwtutil.NewJWT,
 			fx.As(new(jwtutil.JWTManager)),
 		),
+		fx.Annotate(
+			transactioner.NewSQLTransactioner,
+			fx.As(new(transactioner.Transactioner)),
+		),
 
 		// Providers
 		mysqlrepo.NewMySQLDBConn,
+		mysqlrepo.NewMySQLQueries,
 		fx.Annotate(
 			mysqlrepo.NewMySQLTaskRepo,
 			fx.As(new(repo.TaskRepo)),
